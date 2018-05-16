@@ -4,6 +4,7 @@ import os
 
 from PIL import Image
 import numpy as np
+import sys
 
 
 class JSONextractor():
@@ -89,8 +90,9 @@ class JSONextractor():
                         self.labels[x] = 0
 
                     if len(b[immNum]['Label']) == 1:
+                        print('1')
+                        sys.stdout.flush()
                         for x in b[immNum]['Label'].keys():
-                            print(x)
                             name = x
                         nameApp = name
                         name = self.nomeBase + str(immNum) + name
