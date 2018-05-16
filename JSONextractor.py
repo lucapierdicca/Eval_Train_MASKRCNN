@@ -84,12 +84,13 @@ class JSONextractor():
                 self.converti(name)
 
             else:
-                if 'Masks' in b[immNum].keys():
+                if "Masks" in b[immNum]:
                     for x in range(len(self.labels)):
                         self.labels[x] = 0
 
                     if len(b[immNum]['Label']) == 1:
                         for x in b[immNum]['Label'].keys():
+                            print(x)
                             name = x
                         nameApp = name
                         name = self.nomeBase + str(immNum) + name
