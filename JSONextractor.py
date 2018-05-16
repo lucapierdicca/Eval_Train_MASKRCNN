@@ -45,6 +45,8 @@ class JSONextractor():
                     self.numObject[self.classes.index(name)] += 1
         self.initStampa(self.classes, self.numObject)
 
+
+
     def initStampa(self, ogg, num):
         print("there are ", len(ogg), " objects.")
         count = 0
@@ -80,7 +82,8 @@ class JSONextractor():
                 urllib.request.urlretrieve(imm, name + ".png")
                 os.chdir(self.bmpPath)
                 self.converti(name)
-            else:
+
+            else if 'Masks' in b[immNum].keys():
                 for x in range(len(self.labels)):
                     self.labels[x] = 0
 
