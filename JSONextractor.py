@@ -33,7 +33,7 @@ class JSONextractor():
             os.makedirs(self.bmpPath)
 
         self.b = [img for img in self.b if 'Masks' in img and 'image_problems' not in img['Label']]
-        self.b = self.b[1000:1020]
+        #self.b = self.b[1000:1020]
 
         for xx in range(len(self.b)):
             name = ''
