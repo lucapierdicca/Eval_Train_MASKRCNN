@@ -2,7 +2,7 @@ import json
 import urllib.request
 import os
 
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 import sys
 
@@ -33,6 +33,7 @@ class JSONextractor():
             os.makedirs(self.bmpPath)
 
         self.b = [img for img in self.b if 'Masks' in img and 'image_problems' not in img['Label']]
+        self.b = self.b[50:100]
 
         for xx in range(len(self.b)):
             name = ''
@@ -71,6 +72,12 @@ class JSONextractor():
             imm = self.b[immNum]['Labeled Data']
             os.chdir(self.pngPath)
             urllib.request.urlretrieve(imm, name + ".png")
+
+            #prendo la size perchè mi serve dopo
+            im = Image.open(name + ".png")
+            width, height = im.size
+            im.close()
+
             self.converti(name)
 
             if "Mask" in self.b[immNum].keys():
@@ -82,6 +89,7 @@ class JSONextractor():
                 imm = self.b[immNum]['Mask'][nameApp]
                 os.chdir(self.pngPath)
                 urllib.request.urlretrieve(imm, name + ".png")
+
                 os.chdir(self.bmpPath)
                 self.converti(name)
 
@@ -95,11 +103,53 @@ class JSONextractor():
                         name = x
                     nameApp = name
                     name = self.nomeBase + str(immNum) + name
-                    imm = self.b[immNum]['Masks'][nameApp]
-                    os.chdir(self.pngPath)
-                    urllib.request.urlretrieve(imm, name + ".png")
-                    os.chdir(self.bmpPath)
-                    self.converti(name)
+                    
+                    if(len(self.b[immNum]['Label'][nameApp])) == 1:
+                        
+                        imm = self.b[immNum]['Masks'][nameApp]
+                        os.chdir(self.pngPath)
+                        urllib.request.urlretrieve(imm, name + ".png")
+                        os.chdir(self.bmpPath)
+                        self.converti(name)
+                    
+                    else:
+                        iter = 0
+                        vector = []
+                        lim2 = len(self.b[immNum]['Label'][x]) #numero di poligoni
+                        print("The number of present "+ str(x)+ " is "+ str(lim2))
+                        vector.append([])
+                        for y in range(lim2):
+                            vector[iter].append([])
+                            lim3 = len(self.b[immNum]['Label'][x][y]) #numero di punti nel poligono corrente
+                            print("Number of points for the label "+ str(x) + " number "+ str(y) + " is "+ str(lim3))
+                            for z in range(lim3):
+                                for w in self.b[immNum]['Label'][x][y][z]:
+                                    vector[iter][y].append(self.b[immNum]['Label'][x][y][z][w])
+                        #iter += 1
+                        os.chdir(self.pngPath)
+                        for x in range(len(vector)):
+                            for y in range(len(vector[x])):
+                                print(vector[x][y])
+                                img_size = (width, height)
+                                poly = Image.new('RGB', img_size)
+                                pdraw = ImageDraw.Draw(poly)
+                                pdraw.polygon(vector[x][y],
+                                              fill=(255, 255, 255, 127), outline=(255, 255, 255, 255))
+
+                                poly.save(name + str(y) + '.png')
+                        
+                        os.chdir(self.bmpPath)
+                        for x in range(len(vector)):
+                            for y in range(len(vector[x])):
+                                print(vector[x][y])
+                                img_size = (width, height)
+                                poly = Image.new('RGB', img_size)
+                                pdraw = ImageDraw.Draw(poly)
+                                pdraw.polygon(vector[x][y],
+                                              fill=(255, 255, 255, 127), outline=(255, 255, 255, 255))
+
+                                poly.save(name + str(y) + '.bmp')
+
                 else:
                     for x in self.b[immNum]['Label'].keys():
                         name = x
