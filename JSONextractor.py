@@ -17,11 +17,11 @@ class JSONextractor():
         self.bmpPath = paths[3]
         self.keyDict = {}
         self.numberOfLabels = 0
-        self.classes =[]
+        self.class_names =[]
         self.numObject = []
 
         self.nomeBase = "image"
-        self.labels = []
+        self.class_counters = []
         self.b = json.load(open(self.path))
 
         os.chdir(self.directoryPath)
@@ -33,7 +33,7 @@ class JSONextractor():
             os.makedirs(self.bmpPath)
 
         self.b = [img for img in self.b if 'Masks' in img and 'image_problems' not in img['Label']]
-        self.b = self.b[50:100]
+        self.b = self.b[1000:1020]
 
         for xx in range(len(self.b)):
             name = ''
@@ -41,13 +41,13 @@ class JSONextractor():
                 continue
             for x in self.b[xx]['Label'].keys():
                 name = x
-                if name not in self.classes:
-                    self.classes.append(name)
+                if name not in self.class_names:
+                    self.class_names.append(name)
                     self.numObject.append(1)
-                    self.labels.append(0)
+                    self.class_counters.append(0)
                 else:
-                    self.numObject[self.classes.index(name)] += 1
-        self.initStampa(self.classes, self.numObject)
+                    self.numObject[self.class_names.index(name)] += 1
+        self.initStampa(self.class_names, self.numObject)
 
 
 
@@ -61,8 +61,88 @@ class JSONextractor():
         print ("There are ", count, " objects labeled in total.")
 
 
-    def extraction(self):
+    # def extraction(self):
 
+    #     self.numberOfLabels = len(self.b)
+    #     name = ''
+    #     for immNum in range(len(self.b)):
+    #         if self.b[immNum]['Label'] == "Skip":
+    #             continue
+    #         name = self.nomeBase + str(immNum)
+    #         imm = self.b[immNum]['Labeled Data']
+    #         os.chdir(self.pngPath)
+    #         urllib.request.urlretrieve(imm, name + ".png")
+
+    #         #prendo la img size perchè mi serve dopo 
+    #         #durante la creazione delle maschere (multiple objects case) 
+    #         im = Image.open(name + ".png")
+    #         width, height = im.size
+    #         im.close()
+
+    #         self.converti(name)
+
+    #         if "Mask" in self.b[immNum].keys():
+    #             print("single mask")
+    #             for x in self.b[immNum]['Label'].keys():
+    #                 name = x
+    #             nameApp = name
+    #             name = self.nomeBase + str(immNum) + name
+    #             imm = self.b[immNum]['Mask'][nameApp]
+    #             os.chdir(self.pngPath)
+    #             urllib.request.urlretrieve(imm, name + ".png")
+
+    #             os.chdir(self.bmpPath)
+    #             self.converti(name)
+
+    #         else:
+
+    #             for x in range(len(self.class_counters)):
+    #                 self.class_counters[x] = 0
+
+    #             #se c'è una sola label
+    #             if len(self.b[immNum]['Label']) == 1:
+    #                 x = list(self.b[immNum]['Label'].keys())[0]
+    #                 name = x
+    #                 name = self.nomeBase + str(immNum) + name
+                    
+    #                 #se c'è un solo poligono
+    #                 if(len(self.b[immNum]['Label'][x]) == 1 or x == 'Straight razor'):
+    #                     imm = self.b[immNum]['Masks'][x]
+    #                     os.chdir(self.pngPath)
+    #                     urllib.request.urlretrieve(imm, name + ".png")
+    #                     os.chdir(self.bmpPath)
+    #                     self.converti(name)
+                    
+    #                 #altrimenti se ci sono più poligoni
+    #                 else:
+    #                     print("Single label multiple poly")
+    #                     print(name)
+    #                     polygon_list = self.b[immNum]['Label'][x]
+    #                     self.createMask(polygon_list, width, height, name)
+
+    #             #altrimenti se c'è più di una label
+    #             else:
+    #                 for x in self.b[immNum]['Label'].keys():
+    #                     name = x
+    #                     #se c'è un solo poligono 
+    #                     if(len(self.b[immNum]['Label'][x]) == 1 or name == 'Straight razor'):
+    #                         name = self.nomeBase + str(immNum) + name + str(self.class_counters[self.class_names.index(name)])
+    #                         self.class_counters[self.class_names.index(x)] += 1
+    #                         imm = self.b[immNum]['Masks'][x]
+    #                         os.chdir(self.pngPath)
+    #                         urllib.request.urlretrieve(imm, name + ".png")
+    #                         os.chdir(self.bmpPath)
+    #                         self.converti(name)
+
+    #                     #altrimenti se ci sono più poligoni 
+    #                     else:
+    #                         name = self.nomeBase + str(immNum) + name
+    #                         print("Multiple labels multiple poly")
+    #                         print(name)
+    #                         polygon_list = self.b[immNum]['Label'][x]
+    #                         self.createMask(polygon_list, width, height, name)
+
+    def extraction(self):
         self.numberOfLabels = len(self.b)
         name = ''
         for immNum in range(len(self.b)):
@@ -72,94 +152,49 @@ class JSONextractor():
             imm = self.b[immNum]['Labeled Data']
             os.chdir(self.pngPath)
             urllib.request.urlretrieve(imm, name + ".png")
+            self.converti(name)
 
-            #prendo la size perchè mi serve dopo
+            #img size di img appena scaricata
+            #I have to use it for mask(s) creation 
             im = Image.open(name + ".png")
             width, height = im.size
             im.close()
 
-            self.converti(name)
+            for label_name in self.b[immNum]['Label'].keys():
+                mask_name = self.nomeBase + str(immNum) + label_name
+                polygon_list = self.b[immNum]['Label'][label_name]
+                self.createMask(polygon_list, width, height, mask_name)
 
-            if "Mask" in self.b[immNum].keys():
-                print("single mask")
-                for x in self.b[immNum]['Label'].keys():
-                    name = x
-                nameApp = name
-                name = self.nomeBase + str(immNum) + name
-                imm = self.b[immNum]['Mask'][nameApp]
+
+
+    def createMask(self, polygon_list, width, height, mask_name):
+        vector = []
+        for polygon in polygon_list:
+            vector.append([(vertex['x'], height-vertex['y']) for vertex in polygon])
+        
+        if('Straight Razor' not in mask_name):
+            for i, polygon in enumerate(vector):
+                img_size = (width, height)
+                mask = Image.new('RGB', img_size)
+                pdraw = ImageDraw.Draw(mask)
+                pdraw.polygon(polygon, fill=(255, 255, 255, 127), outline=(255, 255, 255, 255))
+
                 os.chdir(self.pngPath)
-                urllib.request.urlretrieve(imm, name + ".png")
-
+                mask.save(mask_name + str(i) + '.png')
                 os.chdir(self.bmpPath)
-                self.converti(name)
+                mask.save(mask_name + str(i) + '.bmp') 
+        else:
+            img_size = (width, height)
+            mask = Image.new('RGB', img_size)
+            pdraw = ImageDraw.Draw(mask)
+            
+            for polygon in vector:
+                pdraw.polygon(polygon, fill=(255, 255, 255, 127), outline=(255, 255, 255, 255))
 
-            else:
-
-                for x in range(len(self.labels)):
-                    self.labels[x] = 0
-
-                if len(self.b[immNum]['Label']) == 1:
-                    for x in self.b[immNum]['Label'].keys():
-                        name = x
-                    nameApp = name
-                    name = self.nomeBase + str(immNum) + name
-                    
-                    if(len(self.b[immNum]['Label'][nameApp])) == 1:
-                        
-                        imm = self.b[immNum]['Masks'][nameApp]
-                        os.chdir(self.pngPath)
-                        urllib.request.urlretrieve(imm, name + ".png")
-                        os.chdir(self.bmpPath)
-                        self.converti(name)
-                    
-                    else:
-                        iter = 0
-                        vector = []
-                        lim2 = len(self.b[immNum]['Label'][x]) #numero di poligoni
-                        print("The number of present "+ str(x)+ " is "+ str(lim2))
-                        vector.append([])
-                        for y in range(lim2):
-                            vector[iter].append([])
-                            lim3 = len(self.b[immNum]['Label'][x][y]) #numero di punti nel poligono corrente
-                            print("Number of points for the label "+ str(x) + " number "+ str(y) + " is "+ str(lim3))
-                            for z in range(lim3):
-                                for w in self.b[immNum]['Label'][x][y][z]:
-                                    vector[iter][y].append(self.b[immNum]['Label'][x][y][z][w])
-                        #iter += 1
-                        os.chdir(self.pngPath)
-                        for x in range(len(vector)):
-                            for y in range(len(vector[x])):
-                                print(vector[x][y])
-                                img_size = (width, height)
-                                poly = Image.new('RGB', img_size)
-                                pdraw = ImageDraw.Draw(poly)
-                                pdraw.polygon(vector[x][y],
-                                              fill=(255, 255, 255, 127), outline=(255, 255, 255, 255))
-
-                                poly.save(name + str(y) + '.png')
-                        
-                        os.chdir(self.bmpPath)
-                        for x in range(len(vector)):
-                            for y in range(len(vector[x])):
-                                print(vector[x][y])
-                                img_size = (width, height)
-                                poly = Image.new('RGB', img_size)
-                                pdraw = ImageDraw.Draw(poly)
-                                pdraw.polygon(vector[x][y],
-                                              fill=(255, 255, 255, 127), outline=(255, 255, 255, 255))
-
-                                poly.save(name + str(y) + '.bmp')
-
-                else:
-                    for x in self.b[immNum]['Label'].keys():
-                        name = x
-                        name = self.nomeBase + str(immNum) + name + str(self.labels[self.classes.index(name)])
-                        self.labels[self.classes.index(x)] += 1
-                        imm = self.b[immNum]['Masks'][x]
-                        os.chdir(self.pngPath)
-                        urllib.request.urlretrieve(imm, name + ".png")
-                        os.chdir(self.bmpPath)
-                        self.converti(name)
+            os.chdir(self.pngPath)
+            mask.save(mask_name + '0' + '.png')
+            os.chdir(self.bmpPath)
+            mask.save(mask_name + '0' + '.bmp') 
 
 
 
