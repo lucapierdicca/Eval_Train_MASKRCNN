@@ -22,6 +22,7 @@ class JSONextractor():
 
         self.nomeBase = "image"
         self.labels = []
+        self.b = json.load(open(self.path))
 
         os.chdir(self.directoryPath)
 
@@ -31,15 +32,13 @@ class JSONextractor():
         if not os.path.exists(self.bmpPath):
             os.makedirs(self.bmpPath)
 
-        b = json.load(open(self.path))
+        self.b = [img for img in self.b if 'Masks' in img]
 
-        b = [img for img in b if 'Masks' in img]
-
-        for xx in range(len(b)):
+        for xx in range(len(self.b)):
             name = ''
-            if b[xx]['Label'] == "Skip":
+            if self.b[xx]['Label'] == "Skip":
                 continue
-            for x in b[xx]['Label'].keys():
+            for x in self.b[xx]['Label'].keys():
                 name = x
                 if name not in self.classes:
                     self.classes.append(name)
@@ -63,25 +62,24 @@ class JSONextractor():
 
     def extraction(self):
 
-        b = json.load(open(self.path))
         self.numberOfLabels = len(b)
         name = ''
         for immNum in range(len(b)):
-            if b[immNum]['Label'] == "Skip":
+            if self.b[immNum]['Label'] == "Skip":
                 continue
             name = self.nomeBase + str(immNum)
-            imm = b[immNum]['Labeled Data']
+            imm = self.b[immNum]['Labeled Data']
             os.chdir(self.pngPath)
             urllib.request.urlretrieve(imm, name + ".png")
             self.converti(name)
 
-            if "Mask" in b[immNum].keys():
+            if "Mask" in self.b[immNum].keys():
                 print("single mask")
-                for x in b[immNum]['Label'].keys():
+                for x in self.b[immNum]['Label'].keys():
                     name = x
                 nameApp = name
                 name = self.nomeBase + str(immNum) + name
-                imm = b[immNum]['Mask'][nameApp]
+                imm = self.b[immNum]['Mask'][nameApp]
                 os.chdir(self.pngPath)
                 urllib.request.urlretrieve(imm, name + ".png")
                 os.chdir(self.bmpPath)
@@ -92,22 +90,22 @@ class JSONextractor():
                 for x in range(len(self.labels)):
                     self.labels[x] = 0
 
-                if len(b[immNum]['Label']) == 1:
-                    for x in b[immNum]['Label'].keys():
+                if len(self.b[immNum]['Label']) == 1:
+                    for x in self.b[immNum]['Label'].keys():
                         name = x
                     nameApp = name
                     name = self.nomeBase + str(immNum) + name
-                    imm = b[immNum]['Masks'][nameApp]
+                    imm = self.b[immNum]['Masks'][nameApp]
                     os.chdir(self.pngPath)
                     urllib.request.urlretrieve(imm, name + ".png")
                     os.chdir(self.bmpPath)
                     self.converti(name)
                 else:
-                    for x in b[immNum]['Label'].keys():
+                    for x in self.b[immNum]['Label'].keys():
                         name = x
                         name = self.nomeBase + str(immNum) + name + str(self.labels[self.classes.index(name)])
                         self.labels[self.classes.index(x)] += 1
-                        imm = b[immNum]['Masks'][x]
+                        imm = self.b[immNum]['Masks'][x]
                         os.chdir(self.pngPath)
                         urllib.request.urlretrieve(imm, name + ".png")
                         os.chdir(self.bmpPath)
@@ -131,15 +129,14 @@ class JSONextractor():
 
     def testing(self):
         jsonPath = self.path
-        b = json.load(open(jsonPath))
         classes = []
         image_ids = []  # riempire con gli id di tutte le immagini non skippate
-        for xx in range(len(b)):
-            if b[xx]['Label'] == "Skip":
+        for xx in range(len(self.b)):
+            if self.b[xx]['Label'] == "Skip":
                 continue
             else:
                 image_ids.append(xx)
-            for x in b[xx]['Label'].keys():
+            for x in self.b[xx]['Label'].keys():
                 name = x
                 if name not in classes:
                     classes.append(name)
