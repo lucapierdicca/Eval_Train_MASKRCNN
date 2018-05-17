@@ -62,9 +62,9 @@ class JSONextractor():
 
     def extraction(self):
 
-        self.numberOfLabels = len(b)
+        self.numberOfLabels = len(self.b)
         name = ''
-        for immNum in range(len(b)):
+        for immNum in range(len(self.b)):
             if self.b[immNum]['Label'] == "Skip":
                 continue
             name = self.nomeBase + str(immNum)
