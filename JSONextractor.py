@@ -32,6 +32,9 @@ class JSONextractor():
             os.makedirs(self.bmpPath)
 
         b = json.load(open(self.path))
+
+        b = [img for img in b if 'Masks' in img]
+
         for xx in range(len(b)):
             name = ''
             if b[xx]['Label'] == "Skip":
@@ -85,30 +88,30 @@ class JSONextractor():
                 self.converti(name)
 
             else:
-                if "Masks" in b[immNum]:
-                    for x in range(len(self.labels)):
-                        self.labels[x] = 0
 
-                    if len(b[immNum]['Label']) == 1:
-                        for x in b[immNum]['Label'].keys():
-                            name = x
-                        nameApp = name
-                        name = self.nomeBase + str(immNum) + name
-                        imm = b[immNum]['Masks'][nameApp]
+                for x in range(len(self.labels)):
+                    self.labels[x] = 0
+
+                if len(b[immNum]['Label']) == 1:
+                    for x in b[immNum]['Label'].keys():
+                        name = x
+                    nameApp = name
+                    name = self.nomeBase + str(immNum) + name
+                    imm = b[immNum]['Masks'][nameApp]
+                    os.chdir(self.pngPath)
+                    urllib.request.urlretrieve(imm, name + ".png")
+                    os.chdir(self.bmpPath)
+                    self.converti(name)
+                else:
+                    for x in b[immNum]['Label'].keys():
+                        name = x
+                        name = self.nomeBase + str(immNum) + name + str(self.labels[self.classes.index(name)])
+                        self.labels[self.classes.index(x)] += 1
+                        imm = b[immNum]['Masks'][x]
                         os.chdir(self.pngPath)
                         urllib.request.urlretrieve(imm, name + ".png")
                         os.chdir(self.bmpPath)
                         self.converti(name)
-                    else:
-                        for x in b[immNum]['Label'].keys():
-                            name = x
-                            name = self.nomeBase + str(immNum) + name + str(self.labels[self.classes.index(name)])
-                            self.labels[self.classes.index(x)] += 1
-                            imm = b[immNum]['Masks'][x]
-                            os.chdir(self.pngPath)
-                            urllib.request.urlretrieve(imm, name + ".png")
-                            os.chdir(self.bmpPath)
-                            self.converti(name)
 
 
 
