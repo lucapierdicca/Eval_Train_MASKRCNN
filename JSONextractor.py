@@ -90,8 +90,6 @@ class JSONextractor():
                         self.labels[x] = 0
 
                     if len(b[immNum]['Label']) == 1:
-                        print('1')
-                        sys.stdout.flush()
                         for x in b[immNum]['Label'].keys():
                             name = x
                         nameApp = name
@@ -119,9 +117,14 @@ class JSONextractor():
 
     def converti(self, name):
         path = self.pngPath + "/" + name + ".png"
-        img = Image.open(path)
-        file_out = self.bmpPath + "/" + name + ".bmp"
-        img.save(file_out)
+        try:
+            img = Image.open(path)
+            file_out = self.bmpPath + "/" + name + ".bmp"
+            img.save(file_out)
+            img.close()
+        except OSError:
+            os.remove(path) 
+
 
     def testing(self):
         jsonPath = self.path
