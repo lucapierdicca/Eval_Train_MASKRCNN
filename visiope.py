@@ -66,7 +66,7 @@ DEFAULT_DATASET_YEAR = "2014"
 ############################################################
 
 
-class CocoConfig(Config):
+class VisiopeConfig(Config):
     """Configuration for training on MS COCO.
     Derives from the base Config class and overrides values specific
     to the COCO dataset.
@@ -82,14 +82,14 @@ class CocoConfig(Config):
     # GPU_COUNT = 8
 
     # Number of classes (including background)
-    NUM_CLASSES = 3 ###TODO your assignment
+    NUM_CLASSES = 1 + 15 ###TODO your assignment
 
 
 ############################################################
 #  Dataset
 ############################################################
 
-class CocoDataset(utils.Dataset):
+class VisiopeDataset(utils.Dataset):
 
     def load_coco(self, dataset_dir, subset, year=DEFAULT_DATASET_YEAR, class_ids=None,
                   class_map=None, return_coco=False, auto_download=False):
@@ -111,10 +111,12 @@ class CocoDataset(utils.Dataset):
 
         #mod class_id to a number of classes
 
-        self.path = "./bmpImages"  ##TODO: add the path to the dataset folder
-        self.jsonName = "A.json"  ##TODO: add json file name
-        jsonPath = self.path + "/" + self.jsonName
+        self.path = "./pngImages"  ##TODO: add the path to the dataset folder
+        self.jsonName = "labelbox.json"  ##TODO: add json file name
+        
+        jsonPath = self.jsonName
         b = json.load(open(jsonPath))
+        
         classes = []
         image_ids = []  # riempire con gli id di tutte le immagini non skippate
         for xx in range(len(b)):
@@ -173,12 +175,14 @@ class CocoDataset(utils.Dataset):
             one mask per instance.
         class_ids: a 1D array of class IDs of the instance masks.
         """
-        self.path = "./bmpImages"  ##TODO: add the path to the dataset folder
-        self.jsonName = "A.json"  ##TODO: add json file name
+        self.path = "./pngImages"  ##TODO: add the path to the dataset folder
+        self.jsonName = "labelbox.json"  ##TODO: add json file name
         self.nomeBase = "image"
+        
         ret1 = []
         ret2 = []
-        jsonPath = self.path + "/" + self.jsonName
+
+        jsonPath = self.jsonName
         b = json.load(open(jsonPath))
         classes = []
         image_ids = []  # riempire con gli id di tutte le immagini non skippate
@@ -408,14 +412,7 @@ def evaluate_coco(model, dataset, coco, eval_type="bbox", limit=0, image_ids=Non
 
 if __name__ == '__main__':
 
-    '''
-    dataset_train = CocoDataset()
 
-    dataset_train.bmpToBinary('/home/luca/Desktop/ComV/LABE2/bmpImages/image1.bmp')
-    '''
-
-
-    
     import argparse
 
     # Parse command line arguments
@@ -477,7 +474,7 @@ if __name__ == '__main__':
                                   model_dir=args.logs)
 
     # Select weights file to load
-    if args.model.lower() == "visiope":
+    if args.model.lower() == "coco":
         model_path = COCO_MODEL_PATH
     elif args.model.lower() == "last":
         # Find last trained weights
@@ -496,13 +493,13 @@ if __name__ == '__main__':
     if args.command == "train":
         # Training dataset. Use the training set and 35K from the
         # validation set, as as in the Mask RCNN paper.
-        dataset_train = CocoDataset()
+        dataset_train = VisiopeoDataset()
         dataset_train.load_coco(args.dataset, "train", year=args.year, auto_download=args.download)
         dataset_train.load_coco(args.dataset, "valminusminival", year=args.year, auto_download=args.download)
         dataset_train.prepare()
 
         # Validation dataset
-        dataset_val = CocoDataset()
+        dataset_val = VisiopeDataset()
         dataset_val.load_coco(args.dataset, "minival", year=args.year, auto_download=args.download)
         dataset_val.prepare()
 
@@ -540,7 +537,7 @@ if __name__ == '__main__':
 
     elif args.command == "evaluate":
         # Validation dataset
-        dataset_val = CocoDataset()
+        dataset_val = VisiopeDataset()
         coco = dataset_val.load_coco(args.dataset, "minival", year=args.year, return_coco=True, auto_download=args.download)
         dataset_val.prepare()
         print("Running COCO evaluation on {} images.".format(args.limit))
