@@ -454,7 +454,7 @@ if __name__ == '__main__':
 
     # Configurations
     if args.command == "train":
-        config = CocoConfig()
+        config = VisiopeConfig()
     else:
         class InferenceConfig(CocoConfig):
             # Set batch size to 1 since we'll be running inference on
