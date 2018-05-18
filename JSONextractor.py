@@ -145,6 +145,7 @@ class JSONextractor():
     def extraction(self):
         self.numberOfLabels = len(self.b)
         name = ''
+
         for immNum in range(len(self.b)):
             if self.b[immNum]['Label'] == "Skip":
                 continue
@@ -152,6 +153,7 @@ class JSONextractor():
             imm = self.b[immNum]['Labeled Data']
             os.chdir(self.pngPath)
             urllib.request.urlretrieve(imm, name + ".png")
+
             self.converti(name)
 
             #img size di img appena scaricata
@@ -209,7 +211,8 @@ class JSONextractor():
             img.save(file_out)
             img.close()
         except OSError:
-            os.remove(path) 
+            print("Error: "+path)
+            #os.remove(path) 
 
 
     def testing(self):
