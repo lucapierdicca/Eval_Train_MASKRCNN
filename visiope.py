@@ -154,13 +154,13 @@ class VisiopeDataset(utils.Dataset):
     #returns a list of h lists of w (R,G,B) tuples
     def bmpToBinary(self, path):
         img = Image.open(path)
-        h, w = img.size
+        w, h = img.size
         pixels = list(img.getdata())
         #print(len(pixels))
         aux = []
         for i in range(h):
-            aux.append(pixels[w*i:w*(i+1)])
-
+            boolean_pixel_list = [False if rgb_tuple[0]==0 else True for rgb_tuple in pixels[w*i:w*(i+1)]]
+            aux.append(boolean_pixel_list)
         return aux
 
 
@@ -239,13 +239,12 @@ class VisiopeDataset(utils.Dataset):
         
         class_ids = True
 
-        print(len(ret1))
-        print(len(ret2))
-        
         if class_ids:
-            mask = np.stack(ret1, axis=2).astype(np.bool)
-            class_ids = np.array(ret1, dtype=np.int32)
+            mask = np.stack(ret1, axis=2)
+            class_ids = np.array(ret2, dtype=np.int32)+1
             return mask, class_ids
+
+
         else:
             # Call super class to return an empty mask
             return super(CocoDataset, self).load_mask(image_id)
@@ -293,11 +292,8 @@ class VisiopeDataset(utils.Dataset):
 
     def image_reference(self, image_id):
         """Return a link to the image in the COCO Website."""
-        info = self.path + "pngImages/image" + (str(image_id))
-        if info["source"] == "visiope":
-            return info
-        else:
-            super(CocoDataset, self).image_reference(image_id)
+        info = self.path + "/image" + (str(image_id)) + ".png"
+        return info
 
     # The following two functions are from pycocotools with a few changes.
 
