@@ -116,6 +116,8 @@ class VisiopeDataset(utils.Dataset):
         
         jsonPath = self.jsonName
         b = json.load(open(jsonPath))
+        b = [img for img in b if 'Masks' in img and 'image_problems' not in img['Label']]
+
         
         classes = []
         image_ids = []  # riempire con gli id di tutte le immagini non skippate
@@ -130,39 +132,36 @@ class VisiopeDataset(utils.Dataset):
                 if name not in classes:
                     classes.append(name)
 
+        print(classes)
+        print(image_ids)
 
         #NON TROVO QUESTE DUE--------------------------
 
         #Add classes
-        for i in range(1, len(classes)):
-            self.add_class("visiope", i, classes[i]) #cerca add_class
+        for i in range(len(classes)):
+            self.add_class("visiope", i+1, classes[i]) #cerca add_class
 
         # Add images
         for i in image_ids:
-            self.add_image("visiope", image_id=i, path=dataset_dir + "/pngImages/image" + str(i)) #cerca add_image
+            self.add_image("visiope", image_id=i, path=dataset_dir + "/image" + str(i) + ".png") #cerca add_image
+        
+
         if return_coco:
             return b
 
 
 
-
+    #returns a list of h lists of w (R,G,B) tuples
     def bmpToBinary(self, path):
         img = Image.open(path)
         h, w = img.size
         pixels = list(img.getdata())
-
-        print(len(pixels))
+        #print(len(pixels))
         aux = []
-        for x in range(h):
-            aux.append([])
-            for y in range(w):
-                aux[x].append(pixels[x*h + y])
+        for i in range(h):
+            aux.append(pixels[w*i:w*(i+1)])
 
         return aux
-
-    
-
-
 
 
     def load_mask(self, image_id):
@@ -175,7 +174,7 @@ class VisiopeDataset(utils.Dataset):
             one mask per instance.
         class_ids: a 1D array of class IDs of the instance masks.
         """
-        self.path = "./pngImages"  ##TODO: add the path to the dataset folder
+        path = "./bmpImages"  ##TODO: add the path to the dataset folder
         self.jsonName = "labelbox.json"  ##TODO: add json file name
         self.nomeBase = "image"
         
@@ -184,6 +183,8 @@ class VisiopeDataset(utils.Dataset):
 
         jsonPath = self.jsonName
         b = json.load(open(jsonPath))
+        b = [img for img in b if 'Masks' in img and 'image_problems' not in img['Label']]
+
         classes = []
         image_ids = []  # riempire con gli id di tutte le immagini non skippate
         masks_per_img = []
@@ -197,16 +198,17 @@ class VisiopeDataset(utils.Dataset):
                 name = x
                 if name not in classes:
                     classes.append(name)
-        labels = []
-        for x in classes:
-            labels.append(0)
+
+
+        labels = [0]*len(classes)
+
         immNum = image_id
         if "Mask" in b[immNum].keys():
             print("single mask")
             for x in b[immNum]['Label'].keys():
                 name = x
             nameApp = name
-            name = "image" + str(immNum) + name + ".bmp"
+            name = path + "/image" + str(immNum) + name + ".bmp"
             aux = self.bmpToBinary(name)
             ret1.append(aux)
             ret2.append(classes.index(nameApp))
@@ -217,7 +219,8 @@ class VisiopeDataset(utils.Dataset):
                 for x in b[immNum]['Label'].keys():
                     name = x
                 nameApp = name
-                name = self.nomeBase + str(immNum) + name + ".bmp"
+                #TODO forse bisgna aggiungere uno 0 alla fine in questa stringa sotto
+                name = path + "/image" + str(immNum) + name + '0' + ".bmp"
                 aux = self.bmpToBinary(name)
                 ret1.append(aux)
                 ret2.append(classes.index(nameApp))
@@ -228,12 +231,17 @@ class VisiopeDataset(utils.Dataset):
                 for x in b[immNum]['Label'].keys():
                     name = x
                     nameApp = name
-                    name = self.nomeBase + str(immNum) + name + str(labels[classes.index(name)]) + ".bmp"
+                    name = path + "/image" + str(immNum) + name + str(labels[classes.index(name)]) + ".bmp"
                     labels[classes.index(x)] += 1
                     aux = self.bmpToBinary(name)
                     ret1.append(aux)
                     ret2.append(classes.index(nameApp))
+        
         class_ids = True
+
+        print(len(ret1))
+        print(len(ret2))
+        
         if class_ids:
             mask = np.stack(ret1, axis=2).astype(np.bool)
             class_ids = np.array(ret1, dtype=np.int32)
@@ -507,6 +515,9 @@ if __name__ == '__main__':
         # Right/Left flip 50% of the time
         augmentation = imgaug.augmenters.Fliplr(0.5)
 
+
+
+        '''
         # *** This training schedule is an example. Update to your needs ***
 
         # Training - Stage 1
@@ -546,4 +557,4 @@ if __name__ == '__main__':
         print("'{}' is not recognized. "
               "Use 'train' or 'evaluate'".format(args.command))
 
-    
+        '''
