@@ -344,6 +344,8 @@ def evaluate_coco(model, dataset, coco, eval_type="bbox", limit=0, image_ids=Non
     if limit:
         image_ids = image_ids[:limit]
 
+    print(image_ids)
+
     # Get corresponding COCO image IDs.
     coco_image_ids = [dataset.image_info[id]["id"] for id in image_ids]
 
@@ -514,7 +516,7 @@ if __name__ == '__main__':
     elif args.command == "evaluate":
         # Validation dataset
         dataset_val = VisiopeDataset()
-        coco = dataset_val.load_visiope(args.dataset, "val")
+        coco = dataset_val.load_visiope(args.dataset, "val", return_coco=True)
         dataset_val.prepare()
         print("Running COCO evaluation on {} images.".format(args.limit))
         evaluate_coco(model, dataset_val, coco, "bbox", limit=int(args.limit))
