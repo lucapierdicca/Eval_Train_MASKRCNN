@@ -76,7 +76,7 @@ class VisiopeConfig(Config):
 
     # We use a GPU with 12GB memory, which can fit two images.
     # Adjust down if you use a smaller GPU.
-    IMAGES_PER_GPU = 1  ##TODO: your pc or alcorlab's pc
+    IMAGES_PER_GPU = 2  ##TODO: your pc or alcorlab's pc
 
     # Uncomment to train on 8 GPUs (default is 1)
     # GPU_COUNT = 8
