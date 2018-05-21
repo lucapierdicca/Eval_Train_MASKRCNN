@@ -91,64 +91,6 @@ class VisiopeConfig(Config):
 
 class VisiopeDataset(utils.Dataset):
 
-    # def load_visiope(self, dataset_dir, subset, year=DEFAULT_DATASET_YEAR, class_ids=None,
-    #               class_map=None, return_coco=False, auto_download=False):
-    #     """Load a subset of the COCO dataset.
-    #     dataset_dir: The root directory of the COCO dataset.
-    #     subset: What to load (train, val, minival, valminusminival)
-    #     year: What dataset year to load (2014, 2017) as a string, not an integer
-    #     class_ids: If provided, only loads images that have the given classes.
-    #     class_map: TODO: Not implemented yet. Supports maping classes from
-    #         different datasets to the same class ID.
-    #     return_coco: If True, returns the COCO object.
-    #     auto_download: Automatically download and unzip MS-COCO images and annotations
-    #     """
-
-    #     #coco = COCO("{}/annotations/instances_{}{}.json".format(dataset_dir, subset, year))  #file json da aprire
-    #     #bisogna aprirlo e leggerlo
-
-    #     #mettere un campo con tutte le classi elencate
-
-    #     #mod class_id to a number of classes
-
-    #     self.path = "./pngImages"  ##TODO: add the path to the dataset folder
-    #     self.jsonName = "labelbox.json"  ##TODO: add json file name
-        
-    #     jsonPath = self.jsonName
-    #     b = json.load(open(jsonPath))
-    #     b = [img for img in b if 'Masks' in img and 'image_problems' not in img['Label']]
-
-        
-    #     classes = []
-    #     image_ids = []  # riempire con gli id di tutte le immagini non skippate
-    #     for xx in range(len(b)):
-    #         name = xx
-    #         if b[xx]['Label'] == "Skip":
-    #             continue
-    #         else:
-    #             image_ids.append(xx)
-    #         for x in b[xx]['Label'].keys():
-    #             name = x
-    #             if name not in classes:
-    #                 classes.append(name)
-
-    #     print(classes)
-    #     print(image_ids)
-
-    #     #NON TROVO QUESTE DUE--------------------------
-
-    #     #Add classes
-    #     for i in range(len(classes)):
-    #         self.add_class("visiope", i+1, classes[i]) #cerca add_class
-
-    #     # Add images
-    #     for i in image_ids:
-    #         self.add_image("visiope", image_id=i, path=dataset_dir + "/image" + str(i) + ".png") #cerca add_image
-        
-
-    #     if return_coco:
-    #         return b
-
     def load_visiope(self, dataset_dir, subset, class_ids=None,
                   class_map=None, return_coco=False):
         """Load a subset of the COCO dataset.
@@ -208,9 +150,6 @@ class VisiopeDataset(utils.Dataset):
                 if name not in classes:
                     classes.append(name)
 
-
-        print(classes)
-        print(image_ids)
 
         #Add classes
         for i in range(len(classes)):
@@ -567,10 +506,14 @@ if __name__ == '__main__':
         #dataset_train.load_visiope(args.dataset, "val", year=args.year, auto_download=args.download)
         dataset_train.prepare()
 
+        print(dataset_train.class_info)
+
         # Validation dataset
         dataset_val = VisiopeDataset()
         dataset_val.load_visiope(args.dataset, "val")
         dataset_val.prepare()
+
+        print(dataset_val.class_info)
 
         # Image Augmentation
         # Right/Left flip 50% of the time
