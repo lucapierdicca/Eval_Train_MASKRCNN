@@ -466,8 +466,10 @@ if __name__ == '__main__':
         # Training dataset. Use the training set and 35K from the
         # validation set, as as in the Mask RCNN paper.
         dataset_train = VisiopeDataset()
+        
         dataset_train.load_visiope(args.dataset, "train")
         #dataset_train.load_visiope(args.dataset, "val", year=args.year, auto_download=args.download)
+        
         dataset_train.prepare()
 
         print(dataset_train.class_info)
