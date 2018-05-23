@@ -109,7 +109,7 @@ class VisiopeDataset(utils.Dataset):
         np.random.seed(0)
         train_images_ids = sorted(np.random.choice(len(b), 
                                                    replace=False, 
-                                                   size=int(len(b)*0.8)).tolist())
+                                                   size=int(len(b)*0.9)).tolist())
         val_images_ids = sorted(list(set(all_images_ids)-set(train_images_ids)))
 
 

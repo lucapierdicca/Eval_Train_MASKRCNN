@@ -379,8 +379,6 @@ class VisiopeDataset(utils.Dataset):
         info = self.path + "/image" + (str(image_id)) + ".png"
         return info
 
-
-
 ############################################################
 #  COCO Evaluation
 ############################################################
