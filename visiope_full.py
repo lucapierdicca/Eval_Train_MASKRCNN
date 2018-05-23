@@ -23,17 +23,9 @@ import os
 import sys
 import time
 import numpy as np
-import imgaug  # https://github.com/aleju/imgaug (pip3 install imageaug)
-
-# Download and install the Python COCO tools from https://github.com/waleedka/coco
-# That's a fork from the original https://github.com/pdollar/coco with a bug
-# fix for Python 3.
-# I submitted a pull request https://github.com/cocodataset/cocoapi/pull/50
-# If the PR is merged then use the original repo.
-# Note: Edit PythonAPI/Makefile and replace "python" with "python3".
+import imgaug  
 
 from PIL import Image
-#from datashape import json
 import json
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
@@ -43,28 +35,21 @@ import zipfile
 import urllib.request
 import shutil
 
-# Root directory of the project
-ROOT_DIR = os.path.abspath("../../")
-
 # Import Mask RCNN
-sys.path.append(ROOT_DIR)  # To find local version of the library
 from mrcnn.config import Config
 from mrcnn import model as modellib, utils
 
 # Path to trained weights file
-#COCO_MODEL_PATH = os.path.join(ROOT_DIR, "mask_rcnn_coco.h5")
 COCO_MODEL_PATH = "mask_rcnn_coco.h5"
-
 
 # Directory to save logs and model checkpoints, if not provided
 # through the command line argument --logs
-DEFAULT_LOGS_DIR = os.path.join(ROOT_DIR, "logs")
+DEFAULT_LOGS_DIR = "./logs"
 DEFAULT_DATASET_YEAR = "2014"
 
 ############################################################
 #  Configurations
 ############################################################
-
 
 class VisiopeConfig(Config):
     """Configuration for training on MS COCO.
@@ -82,7 +67,7 @@ class VisiopeConfig(Config):
     # GPU_COUNT = 8
 
     # Number of classes (including background)
-    NUM_CLASSES = 1 + 15 ###TODO your assignment
+    NUM_CLASSES = 1 + 15 + 90 ###TODO your assignment
 
 
 ############################################################
@@ -90,8 +75,8 @@ class VisiopeConfig(Config):
 ############################################################
 
 class VisiopeDataset(utils.Dataset):
-    def load_visiope(self, dataset_dir, subset, class_ids=None,
-                  class_map=None, return_coco=False):
+    
+    def load_visiope(self, dataset_dir, subset, class_ids=None, class_map=None, return_coco=False):
         """Load a subset of the COCO dataset.
         dataset_dir: The root directory of the COCO dataset.
         subset: What to load (train, val, minival, valminusminival)
@@ -163,8 +148,8 @@ class VisiopeDataset(utils.Dataset):
         if return_coco:
             return b
 
-    def load_coco(self, dataset_dir, subset, year=DEFAULT_DATASET_YEAR, class_ids=None,
-                  class_map=None, return_coco=False, auto_download=False):
+
+    def load_coco(self, dataset_dir, subset, year=DEFAULT_DATASET_YEAR, class_ids=None, class_map=None, return_coco=False, auto_download=False):
         """Load a subset of the COCO dataset.
         dataset_dir: The root directory of the COCO dataset.
         subset: What to load (train, val, minival, valminusminival)
@@ -186,7 +171,7 @@ class VisiopeDataset(utils.Dataset):
 
         # Load all classes or a subset?
         if not class_ids:
-            # All classes
+            # All cla sses
             class_ids = sorted(coco.getCatIds())
 
         # All images or a subset?
@@ -217,20 +202,7 @@ class VisiopeDataset(utils.Dataset):
             return coco
 
 
-    #returns a list of h lists of w (R,G,B) tuples
-    def bmpToBinary(self, path):
-        img = Image.open(path)
-        w, h = img.size
-        pixels = list(img.getdata())
-        #print(len(pixels))
-        aux = []
-        for i in range(h):
-            boolean_pixel_list = [False if rgb_tuple[0]==0 else True for rgb_tuple in pixels[w*i:w*(i+1)]]
-            aux.append(boolean_pixel_list)
-        return aux
-
-
-    def load_mask(self, image_id):
+    def load_mask_visiope(self, image_id):
         """Load instance masks for the given image.
         Different datasets use different ways to store masks. This
         function converts the different mask format to one format
@@ -265,63 +237,113 @@ class VisiopeDataset(utils.Dataset):
                 if name not in classes:
                     classes.append(name)
 
+        classes = sorted(classes)
 
         labels = [0]*len(classes)
 
-        immNum = image_id
-        if "Mask" in b[immNum].keys():
-            print("single mask")
+        immNum = self.image_info[image_id]['id']
+        #immNum = image_id
+
+        if len(b[immNum]['Label']) == 1:
             for x in b[immNum]['Label'].keys():
                 name = x
             nameApp = name
-            name = path + "/image" + str(immNum) + name + ".bmp"
+            #TODO forse bisgna aggiungere uno 0 alla fine in questa stringa sotto
+            name = path + "/image" + str(immNum) + name + '0' + ".bmp"
             aux = self.bmpToBinary(name)
             ret1.append(aux)
             ret2.append(classes.index(nameApp))
-
-
         else:
-            if len(b[immNum]['Label']) == 1:
-                for x in b[immNum]['Label'].keys():
-                    name = x
+            for x in b[immNum]['Label'].keys():
+                name = x
                 nameApp = name
-                #TODO forse bisgna aggiungere uno 0 alla fine in questa stringa sotto
-                name = path + "/image" + str(immNum) + name + '0' + ".bmp"
+                name = path + "/image" + str(immNum) + name + str(labels[classes.index(name)]) + ".bmp"
+                labels[classes.index(x)] += 1
                 aux = self.bmpToBinary(name)
                 ret1.append(aux)
                 ret2.append(classes.index(nameApp))
-
-
-            else:
-
-                for x in b[immNum]['Label'].keys():
-                    name = x
-                    nameApp = name
-                    name = path + "/image" + str(immNum) + name + str(labels[classes.index(name)]) + ".bmp"
-                    labels[classes.index(x)] += 1
-                    aux = self.bmpToBinary(name)
-                    ret1.append(aux)
-                    ret2.append(classes.index(nameApp))
         
-        class_ids = True
+        mask = np.stack(ret1, axis=2)
+        class_ids = np.array(ret2, dtype=np.int32)+1
 
+        return mask, class_ids
+    
+    #reads a .bmp mask from HDD (black&white img)
+    #returns a boolean list of lists (H x W)
+    def bmpToBinary(self, path):
+        img = Image.open(path)
+        w, h = img.size
+        pixels = list(img.getdata())
+        #print(len(pixels))
+        aux = []
+        for i in range(h):
+            boolean_pixel_list = [False if rgb_tuple[0]==0 else True for rgb_tuple in pixels[w*i:w*(i+1)]]
+            aux.append(boolean_pixel_list)
+        return aux
+
+
+    def load_mask_coco(self, image_id):
+        """Load instance masks for the given image.
+
+        Different datasets use different ways to store masks. This
+        function converts the different mask format to one format
+        in the form of a bitmap [height, width, instances].
+
+        Returns:
+        masks: A bool array of shape [height, width, instance count] with
+            one mask per instance.
+        class_ids: a 1D array of class IDs of the instance masks.
+        """
+        # If not a COCO image, delegate to parent class.
+        image_info = self.image_info[image_id]
+        if image_info["source"] != "coco":
+            return super(CocoDataset, self).load_mask(image_id)
+
+        instance_masks = []
+        class_ids = []
+        annotations = self.image_info[image_id]["annotations"]
+        # Build mask of shape [height, width, instance_count] and list
+        # of class IDs that correspond to each channel of the mask.
+        for annotation in annotations:
+            class_id = self.map_source_class_id(
+                "coco.{}".format(annotation['category_id']))
+            if class_id:
+                m = self.annToMask(annotation, image_info["height"],
+                                   image_info["width"])
+                # Some objects are so small that they're less than 1 pixel area
+                # and end up rounded out. Skip those objects.
+                if m.max() < 1:
+                    continue
+                # Is it a crowd? If so, use a negative class ID.
+                if annotation['iscrowd']:
+                    # Use negative class ID for crowds
+                    class_id *= -1
+                    # For crowd masks, annToMask() sometimes returns a mask
+                    # smaller than the given dimensions. If so, resize it.
+                    if m.shape[0] != image_info["height"] or m.shape[1] != image_info["width"]:
+                        m = np.ones([image_info["height"], image_info["width"]], dtype=bool)
+                instance_masks.append(m)
+                class_ids.append(class_id)
+
+        # Pack instance masks into an array
         if class_ids:
-            mask = np.stack(ret1, axis=2)
-            class_ids = np.array(ret2, dtype=np.int32)+1
+            mask = np.stack(instance_masks, axis=2).astype(np.bool)
+            class_ids = np.array(class_ids, dtype=np.int32)
             return mask, class_ids
-
-
         else:
             # Call super class to return an empty mask
             return super(CocoDataset, self).load_mask(image_id)
 
 
-    def image_reference(self, image_id):
-        """Return a link to the image in the COCO Website."""
-        info = self.path + "/image" + (str(image_id)) + ".png"
-        return info
+    def annToMask(self, ann, height, width):
+        """
+        Convert annotation which can be polygons, uncompressed RLE, or RLE to binary mask.
+        :return: binary mask (numpy 2D array)
+        """
+        rle = self.annToRLE(ann, height, width)
+        m = maskUtils.decode(rle)
+        return m
 
-    # The following two functions are from pycocotools with a few changes.
 
     def annToRLE(self, ann, height, width):
         """
@@ -342,14 +364,21 @@ class VisiopeDataset(utils.Dataset):
             rle = ann['segmentation']
         return rle
 
-    def annToMask(self, ann, height, width):
-        """
-        Convert annotation which can be polygons, uncompressed RLE, or RLE to binary mask.
-        :return: binary mask (numpy 2D array)
-        """
-        rle = self.annToRLE(ann, height, width)
-        m = maskUtils.decode(rle)
-        return m
+
+    def load_mask(self, image_id):
+        if self.image_info[image_id]['source'] == 'visiope':
+            mask, class_ids = self.load_mask_visiope(image_id)
+        else:
+            mask, class_ids = self.load_mask_coco(image_id)
+
+        return mask, class_ids 
+
+
+    def image_reference(self, image_id):
+        """Return a link to the image in the COCO Website."""
+        info = self.path + "/image" + (str(image_id)) + ".png"
+        return info
+
 
 
 ############################################################
@@ -412,6 +441,8 @@ def evaluate_coco(model, dataset, coco, eval_type="bbox", limit=0, image_ids=Non
         # Run detection
         t = time.time()
         r = model.detect([image], verbose=0)[0]
+        print(type(r))
+        print(r)
         t_prediction += (time.time() - t)
 
         # Convert results to COCO format
@@ -443,7 +474,6 @@ def evaluate_coco(model, dataset, coco, eval_type="bbox", limit=0, image_ids=Non
 
 
 if __name__ == '__main__':
-
 
     import argparse
 
@@ -518,17 +548,16 @@ if __name__ == '__main__':
         # Training dataset. Use the training set and 35K from the
         # validation set, as as in the Mask RCNN paper.
         dataset_train = VisiopeDataset()
-        
         dataset_train.load_visiope(args.dataset, "train")
 
-        args.dataset = "."
-        dataset_train.load_coco(args.dataset, "train", year="2017", class_ids=[90])
+        args.dataset = ".."
+        dataset_train.load_coco(args.dataset, "val", year="2014")
         #dataset_train.load_visiope(args.dataset, "val", year=args.year, auto_download=args.download)
-        
         dataset_train.prepare()
 
-        print(dataset_train.class_info)
+
         '''
+        
         # Validation dataset
         dataset_val = VisiopeDataset()
         dataset_val.load_visiope(args.dataset, "val")
@@ -580,4 +609,5 @@ if __name__ == '__main__':
     else:
         print("'{}' is not recognized. "
               "Use 'train' or 'evaluate'".format(args.command))
+        
         '''
