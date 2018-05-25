@@ -551,7 +551,7 @@ if __name__ == '__main__':
         dataset_train = VisiopeDataset()
         dataset_train.load_visiope(args.dataset, "train")
 
-        args.dataset = ".."
+        args.dataset = "."
         dataset_train.load_coco(args.dataset, "val", year="2014")
         #dataset_train.load_visiope(args.dataset, "val", year=args.year, auto_download=args.download)
         dataset_train.prepare()
