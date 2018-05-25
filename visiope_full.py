@@ -69,6 +69,12 @@ class VisiopeConfig(Config):
     # Number of classes (including background)
     NUM_CLASSES = 1 + 15 + 90 ###TODO your assignment
 
+    STEPS_PER_EPOCH = 5
+
+STAGE_1_EPOCHS = 2#40
+STAGE_2_EPOCHS = 2#120
+STAGE_3_EPOCHS = 2#160
+
 
 ############################################################
 #  Dataset
@@ -546,6 +552,8 @@ if __name__ == '__main__':
 
     # Train or evaluate
     if args.command == "train":
+
+
         # Training dataset. Use the training set and 35K from the
         # validation set, as as in the Mask RCNN paper.
         dataset_train = VisiopeDataset()
@@ -556,12 +564,16 @@ if __name__ == '__main__':
         #dataset_train.load_visiope(args.dataset, "val", year=args.year, auto_download=args.download)
         dataset_train.prepare()
 
+        print(dataset_val.class_info)
 
-        '''
+
         
         # Validation dataset
         dataset_val = VisiopeDataset()
         dataset_val.load_visiope(args.dataset, "val")
+
+        args.dataset = "."
+        dataset_train.load_coco(args.dataset, "val", year="2014")
         dataset_val.prepare()
 
         print(dataset_val.class_info)
@@ -578,7 +590,7 @@ if __name__ == '__main__':
         print("Training network heads")
         model.train(dataset_train, dataset_val,
                     learning_rate=config.LEARNING_RATE,
-                    epochs=40,
+                    epochs=STAGE_1_EPOCHS,
                     layers='heads',
                     augmentation=augmentation)
 
@@ -587,7 +599,7 @@ if __name__ == '__main__':
         print("Fine tune Resnet stage 4 and up")
         model.train(dataset_train, dataset_val,
                     learning_rate=config.LEARNING_RATE,
-                    epochs=120,
+                    epochs=STAGE_2_EPOCHS,
                     layers='4+',
                     augmentation=augmentation)
 
@@ -596,7 +608,7 @@ if __name__ == '__main__':
         print("Fine tune all layers")
         model.train(dataset_train, dataset_val,
                     learning_rate=config.LEARNING_RATE / 10,
-                    epochs=160,
+                    epochs=STAGE_3_EPOCHS,
                     layers='all',
                     augmentation=augmentation)
 
