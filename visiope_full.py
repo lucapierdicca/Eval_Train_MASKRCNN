@@ -240,7 +240,10 @@ class VisiopeDataset(utils.Dataset):
         classes = sorted(classes)
 
         labels = [0]*len(classes)
-
+        
+        #dato che ho diviso in (train & val) simple random sampling
+        #il mapping indice_imgID salta e
+        #sono costretto  prendere l'imgID interna all'(oggetto) dataset self
         immNum = self.image_info[image_id]['id']
         #immNum = image_id
 

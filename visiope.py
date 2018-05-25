@@ -38,6 +38,7 @@ import shutil
 # Import Mask RCNN
 from mrcnn.config import Config
 from mrcnn import model as modellib, utils
+from mrcnn import visualize
 
 # Path to trained weights file
 COCO_MODEL_PATH = "mask_rcnn_coco.h5"
@@ -202,6 +203,9 @@ class VisiopeDataset(utils.Dataset):
 
         labels = [0]*len(classes)
 
+        #dato che ho diviso in (train & val) simple random sampling
+        #il mapping indice_imgID salta e
+        #sono costretto  prendere l'imgID interna all'(oggetto) dataset self
         immNum = self.image_info[image_id]['id']
         #immNum = image_id
 
@@ -267,13 +271,13 @@ def build_coco_results(dataset, image_ids, rois, class_ids, scores, masks):
     return results
 
 
-def evaluate_coco(model, dataset, coco, eval_type="bbox", limit=0, image_ids=None):
+def prediction(model, dataset, coco, eval_type="bbox", limit=0, image_ids=None):
     """Runs official COCO evaluation.
     dataset: A Dataset object with valiadtion data
     eval_type: "bbox" or "segm" for bounding box or segmentation evaluation
     limit: if not 0, it's the number of images to use for evaluation
     """
-    # Pick COCO images from the dataset
+
     image_ids = image_ids or dataset.image_ids
 
     # Limit to a subset
@@ -282,45 +286,84 @@ def evaluate_coco(model, dataset, coco, eval_type="bbox", limit=0, image_ids=Non
 
     print(image_ids)
 
-    # Get corresponding COCO image IDs.
-    coco_image_ids = [dataset.image_info[id]["id"] for id in image_ids]
-
-    t_prediction = 0
-    t_start = time.time()
-
-    results = []
-    for i, image_id in enumerate(image_ids):
+    y_pred = []
+    for image_id in image_ids:
+       
         # Load image
         image = dataset.load_image(image_id)
 
         # Run detection
-        t = time.time()
         r = model.detect([image], verbose=0)[0]
-        print(type(r))
-        print(r)
-        t_prediction += (time.time() - t)
 
-        # Convert results to COCO format
-        # Cast masks to uint8 because COCO tools errors out on bool
-        image_results = build_coco_results(dataset, coco_image_ids[i:i + 1],
-                                           r["rois"], r["class_ids"],
-                                           r["scores"],
-                                           r["masks"].astype(np.uint8))
-        results.extend(image_results)
+        y_pred.append(r)
 
-    # Load results. This modifies results with additional attributes.
-    coco_results = coco.loadRes(results)
+    return image_ids, y_pred
 
-    # Evaluate
-    cocoEval = COCOeval(coco, coco_results, eval_type)
-    cocoEval.params.imgIds = coco_image_ids
-    cocoEval.evaluate()
-    cocoEval.accumulate()
-    cocoEval.summarize()
 
-    print("Prediction time: {}. Average {}/image".format(
-        t_prediction, t_prediction / len(image_ids)))
-    print("Total time: ", time.time() - t_start)
+
+def evaluation(image_ids, y_pred, dataset):
+
+    import matplotlib.pyplot as plt
+
+    def get_ax(rows=1, cols=1, size=16):
+        """Return a Matplotlib Axes array to be used in
+        all visualizations in the notebook. Provide a
+        central point to control graph sizes.
+        
+        Adjust the size attribute to control how big to render images
+        """
+        _, ax = plt.subplots(rows, cols, figsize=(size*cols, size*rows))
+        return ax
+        
+    y_true = []
+
+    for i in image_ids:
+        mask, class_ids = dataset.load_mask(i)
+        bbox = utils.extract_bboxes(mask)
+        y_true.append([bbox, class_ids, mask])
+
+
+    ax = get_ax(len(image_ids), 2)
+
+    if len(image_ids <=3):
+        for index, i in enumerate(image_ids):
+            image = dataset.load_image(i)
+            visualize.display_instances(image, 
+                                        y_true[i][0], 
+                                        y_true[i][2], 
+                                        y_true[i][1], 
+                                        dataset.class_names,
+                                        ax=ax[index, 0],
+                                        title="True")
+            visualize.display_instances(image, 
+                                        y_pred[i]['rois'], 
+                                        y_pred[i]['masks'], 
+                                        y_pred[i]['class_ids'], 
+                                        dataset.class_names, 
+                                        y_pred[i]['scores'],
+                                        ax=ax[index, 1],
+                                        title="Predicted")
+        plt.show()
+
+def IoU(bbox_pred, bbox_true):
+    
+    def A(bbox):
+        x0, y0, x1, y1 = bbox[0], bbox[1], bbox[2], bbox[3]
+        return abs(x0-x1)*abs(y0-y1)
+
+    bbox_pred_A = A(bbox_pred)
+    bbox_true_A = A(bbox_true)
+
+    
+
+
+
+
+
+
+
+
+
 
 
 ############################################################
@@ -427,7 +470,7 @@ if __name__ == '__main__':
         print("Training network heads")
         model.train(dataset_train, dataset_val,
                     learning_rate=config.LEARNING_RATE,
-                    epochs=40,
+                    epochs=40/10,
                     layers='heads',
                     augmentation=augmentation)
 
@@ -436,7 +479,7 @@ if __name__ == '__main__':
         print("Fine tune Resnet stage 4 and up")
         model.train(dataset_train, dataset_val,
                     learning_rate=config.LEARNING_RATE,
-                    epochs=120,
+                    epochs=120/10,
                     layers='4+',
                     augmentation=augmentation)
 
@@ -445,7 +488,7 @@ if __name__ == '__main__':
         print("Fine tune all layers")
         model.train(dataset_train, dataset_val,
                     learning_rate=config.LEARNING_RATE / 10,
-                    epochs=160,
+                    epochs=160/10,
                     layers='all',
                     augmentation=augmentation)
 
@@ -455,7 +498,8 @@ if __name__ == '__main__':
         coco = dataset_val.load_visiope(args.dataset, "val", return_coco=True)
         dataset_val.prepare()
         print("Running COCO evaluation on {} images.".format(args.limit))
-        evaluate_coco(model, dataset_val, coco, "bbox", limit=int(args.limit))
+        image_ids, y_pred = prediction(model, dataset_val, coco, "bbox", limit=int(args.limit))
+        evaluation(image_ids, y_pred, dataset_val)
     else:
         print("'{}' is not recognized. "
               "Use 'train' or 'evaluate'".format(args.command))
