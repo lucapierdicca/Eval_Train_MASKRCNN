@@ -71,6 +71,12 @@ class VisiopeConfig(Config):
     # Number of classes (including background)
     NUM_CLASSES = 1 + 15 ###TODO your assignment
 
+    STEPS_PER_EPOCH = 5
+
+STAGE_1_EPOCHS = 2#40
+STAGE_2_EPOCHS = 2#120
+STAGE_3_EPOCHS = 2#160
+
 
 ############################################################
 #  Dataset
@@ -470,7 +476,7 @@ if __name__ == '__main__':
         print("Training network heads")
         model.train(dataset_train, dataset_val,
                     learning_rate=config.LEARNING_RATE,
-                    epochs=40/10,
+                    epochs=STAGE_1_EPOCHS,
                     layers='heads',
                     augmentation=augmentation)
 
@@ -479,7 +485,7 @@ if __name__ == '__main__':
         print("Fine tune Resnet stage 4 and up")
         model.train(dataset_train, dataset_val,
                     learning_rate=config.LEARNING_RATE,
-                    epochs=120/10,
+                    epochs=STAGE_2_EPOCHS,
                     layers='4+',
                     augmentation=augmentation)
 
@@ -488,7 +494,7 @@ if __name__ == '__main__':
         print("Fine tune all layers")
         model.train(dataset_train, dataset_val,
                     learning_rate=config.LEARNING_RATE / 10,
-                    epochs=160/10,
+                    epochs=STAGE_3_EPOCHS,
                     layers='all',
                     augmentation=augmentation)
 
