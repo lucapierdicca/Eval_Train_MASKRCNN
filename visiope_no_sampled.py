@@ -115,6 +115,8 @@ class VisiopeDataset(utils.Dataset):
         b = json.load(open(jsonPath))
         b = [img for img in b if 'Masks' in img and 'image_problems' not in img['Label']]
 
+        classes = []
+        image_ids = []  # riempire con gli id di tutte le immagini non skippate
         
         for xx in range(len(b)):
             name = xx
