@@ -247,7 +247,7 @@ class VisiopeDataset(utils.Dataset):
 
     def image_reference(self, image_id):
         """Return a link to the image in the COCO Website."""
-        info = self.path + "/image" + (str(image_id)) + ".png"
+        info = self.image_info[image_id]['path']
         return info
 
 
@@ -302,15 +302,23 @@ def prediction(model, dataset, coco, eval_type="bbox", limit=0, image_ids=None):
     for image_id in image_ids:
        
         # Load image
-        image = dataset.load_image(image_id)
+        image, image_meta, gt_class_id, gt_bbox, gt_mask =\
+            modellib.load_image_gt(dataset, config, image_id, use_mini_mask=False)
+
+        info = dataset.image_info[image_id]
+
+        print("image ID: {}.{} ({}) {}".format(info["source"], info["id"], image_id, 
+                                       dataset.image_reference(image_id)))
 
         # Run detection
-        r = model.detect([image], verbose=0)[0]
+        r = model.detect([image], verbose=0)
 
-        y_pred.append(r)
+        print(len(r[0]['rois']))
+
+        y_pred = r
 
 
-    pickle.dump(y_pred,open('y_pred_last','wb') ) 
+    pickle.dump(y_pred,open('y_pred_base','wb') ) 
 
     return image_ids, y_pred
 
@@ -349,12 +357,6 @@ def evaluation(image_ids, y_pred, dataset):
     import matplotlib.pyplot as plt
 
     def get_ax(rows=1, cols=1, size=16):
-        """Return a Matplotlib Axes array to be used in
-        all visualizations in the notebook. Provide a
-        central point to control graph sizes.
-        
-        Adjust the size attribute to control how big to render images
-        """
         _, ax = plt.subplots(rows, cols, figsize=(size*cols, size*rows))
         return ax
         
@@ -371,25 +373,25 @@ def evaluation(image_ids, y_pred, dataset):
 
 
 
-    # if len(image_ids <=3):
-    #     for index, i in enumerate(image_ids):
-    #         image = dataset.load_image(i)
-    #         visualize.display_instances(image, 
-    #                                     y_true[i][0], 
-    #                                     y_true[i][2], 
-    #                                     y_true[i][1], 
-    #                                     dataset.class_names,
-    #                                     ax=ax[index, 0],
-    #                                     title="True")
-    #         visualize.display_instances(image, 
-    #                                     y_pred[i]['rois'], 
-    #                                     y_pred[i]['masks'], 
-    #                                     y_pred[i]['class_ids'], 
-    #                                     dataset.class_names, 
-    #                                     y_pred[i]['scores'],
-    #                                     ax=ax[index, 1],
-    #                                     title="Predicted")
-    #     plt.show()
+    if len(image_ids) <=3:
+        for index, i in enumerate(image_ids):
+            image = dataset.load_image(i)
+            visualize.display_instances(image, 
+                                        y_true[i][0], 
+                                        y_true[i][2], 
+                                        y_true[i][1], 
+                                        dataset.class_names,
+                                        ax=ax[0],
+                                        title="True")
+            visualize.display_instances(image, 
+                                        y_pred[i]['rois'], 
+                                        y_pred[i]['masks'], 
+                                        y_pred[i]['class_ids'], 
+                                        dataset.class_names, 
+                                        y_pred[i]['scores'],
+                                        ax=ax[1],
+                                        title="Predicted")
+        plt.show()
 
 
     image = dataset.load_image(i)
@@ -457,7 +459,7 @@ if __name__ == '__main__':
             # one image at a time. Batch size = GPU_COUNT * IMAGES_PER_GPU
             GPU_COUNT = 1
             IMAGES_PER_GPU = 1
-            DETECTION_MIN_CONFIDENCE = 0
+            #DETECTION_MIN_CONFIDENCE = 0.7
         config = InferenceConfig()
     config.display()
 
@@ -472,20 +474,18 @@ if __name__ == '__main__':
     # Select weights file to load
     if args.model.lower() == "coco":
         model_path = COCO_MODEL_PATH
+        
+        print("Loading weights ", model_path)
+        model.load_weights(model_path, 
+                            by_name=True, 
+                            exclude=["mrcnn_class_logits", "mrcnn_bbox_fc","mrcnn_bbox", "mrcnn_mask"])
     elif args.model.lower() == "last":
-        # Find last trained weights
         model_path = model.find_last()[1]
-    elif args.model.lower() == "imagenet":
-        # Start from ImageNet trained weights
-        model_path = model.get_imagenet_weights()
-    else:
-        model_path = args.model
+       
+        print("Loading weights ", model_path)
+        model.load_weights(model_path, by_name=True)
 
-    # Load weights
-    print("Loading weights ", model_path)
-    model.load_weights(model_path, by_name=True, exclude=[
-            "mrcnn_class_logits", "mrcnn_bbox_fc",
-            "mrcnn_bbox", "mrcnn_mask"])
+
 
     # Train or evaluate
     if args.command == "train":
@@ -543,8 +543,6 @@ if __name__ == '__main__':
         dataset_val = VisiopeDataset()
         coco = dataset_val.load_visiope(args.dataset, "val", return_coco=True)
         dataset_val.prepare()
-
-
 
         print("Running COCO evaluation on {} images.".format(args.limit))
         image_ids, y_pred = prediction(model, dataset_val, coco, "bbox", image_ids=[18])
