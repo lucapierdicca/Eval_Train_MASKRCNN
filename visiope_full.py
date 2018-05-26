@@ -38,13 +38,15 @@ import shutil
 # Import Mask RCNN
 from mrcnn.config import Config
 from mrcnn import model as modellib, utils
+from mrcnn import visualize
+from PIL import Image, ImageDraw
 
 # Path to trained weights file
 COCO_MODEL_PATH = "mask_rcnn_coco.h5"
 
 # Directory to save logs and model checkpoints, if not provided
 # through the command line argument --logs
-DEFAULT_LOGS_DIR = "./logs"
+DEFAULT_LOGS_DIR = "./logs_VPF"
 DEFAULT_DATASET_YEAR = "2014"
 
 ############################################################
@@ -67,7 +69,7 @@ class VisiopeConfig(Config):
     # GPU_COUNT = 8
 
     # Number of classes (including background)
-    NUM_CLASSES = 1 + 15 + 90 ###TODO your assignment
+    NUM_CLASSES = 1 + 15 + 80 ###TODO your assignment
 
     STEPS_PER_EPOCH = 5
 
@@ -392,32 +394,6 @@ class VisiopeDataset(utils.Dataset):
 #  COCO Evaluation
 ############################################################
 
-def build_coco_results(dataset, image_ids, rois, class_ids, scores, masks):
-    """Arrange resutls to match COCO specs in http://cocodataset.org/#format
-    """
-    # If no results, return an empty list
-    if rois is None:
-        return []
-
-    results = []
-    for image_id in image_ids:
-        # Loop through detections
-        for i in range(rois.shape[0]):
-            class_id = class_ids[i]
-            score = scores[i]
-            bbox = np.around(rois[i], 1)
-            mask = masks[:, :, i]
-
-            result = {
-                "image_id": image_id,
-                "category_id": dataset.get_source_class_id(class_id, "visiope"),
-                "bbox": [bbox[1], bbox[0], bbox[3] - bbox[1], bbox[2] - bbox[0]],
-                "score": score,
-                "segmentation": maskUtils.encode(np.asfortranarray(mask))
-            }
-            results.append(result)
-    return results
-
 
 def evaluate_coco(model, dataset, coco, eval_type="bbox", limit=0, image_ids=None):
     """Runs official COCO evaluation.
@@ -486,7 +462,7 @@ if __name__ == '__main__':
 
     # Parse command line arguments
     parser = argparse.ArgumentParser(
-        description='Train Mask R-CNN on MS COCO.')
+        description='Train Mask R-CNN on VISIOPE_FULL')
     parser.add_argument("command",
                         metavar="<command>",
                         help="'train' or 'evaluate' on MS COCO")
@@ -520,9 +496,9 @@ if __name__ == '__main__':
             # one image at a time. Batch size = GPU_COUNT * IMAGES_PER_GPU
             GPU_COUNT = 1
             IMAGES_PER_GPU = 1
-            DETECTION_MIN_CONFIDENCE = 0
+            #DETECTION_MIN_CONFIDENCE = 0
         config = InferenceConfig()
-    config.display()
+    #config.display()
 
     # Create model
     if args.command == "train":
@@ -535,25 +511,23 @@ if __name__ == '__main__':
     # Select weights file to load
     if args.model.lower() == "coco":
         model_path = COCO_MODEL_PATH
+        
+        print("Loading weights ", model_path)
+        model.load_weights(model_path, 
+                            by_name=True, 
+                            exclude=["mrcnn_class_logits", "mrcnn_bbox_fc","mrcnn_bbox", "mrcnn_mask"])
     elif args.model.lower() == "last":
-        # Find last trained weights
         model_path = model.find_last()[1]
-    elif args.model.lower() == "imagenet":
-        # Start from ImageNet trained weights
-        model_path = model.get_imagenet_weights()
-    else:
-        model_path = args.model
+       
+        print("Loading weights ", model_path)
+        model.load_weights(model_path, by_name=True)
 
-    # Load weights
-    print("Loading weights ", model_path)
-    model.load_weights(model_path, by_name=True, exclude=[
-            "mrcnn_class_logits", "mrcnn_bbox_fc",
-            "mrcnn_bbox", "mrcnn_mask"])
+
+
 
     # Train or evaluate
     if args.command == "train":
-
-
+        
         # Training dataset. Use the training set and 35K from the
         # validation set, as as in the Mask RCNN paper.
         dataset_train = VisiopeDataset()
@@ -564,9 +538,15 @@ if __name__ == '__main__':
         #dataset_train.load_visiope(args.dataset, "val", year=args.year, auto_download=args.download)
         dataset_train.prepare()
 
+        print("TRAIN")
         print(dataset_train.class_info)
+        print(dataset_train.num_classes)
+        print(dataset_train.class_from_source_map)
 
 
+        print('')
+        print('')
+        
         
         # Validation dataset
         dataset_val = VisiopeDataset()
@@ -575,14 +555,17 @@ if __name__ == '__main__':
         args.dataset = "."
         dataset_val.load_coco(args.dataset, "val", year="2014")
         dataset_val.prepare()
-
-        print(dataset_val.class_info)
+        
+        print("VAL")
+        print(dataset_train.class_info)
+        print(dataset_train.num_classes)
+        print(dataset_train.class_from_source_map)
 
         # Image Augmentation
         # Right/Left flip 50% of the time
         augmentation = imgaug.augmenters.Fliplr(0.5)
 
-
+        '''
         #*******************************************************************
         # *** This training schedule is an example. Update to your needs ***
 
@@ -623,4 +606,4 @@ if __name__ == '__main__':
         print("'{}' is not recognized. "
               "Use 'train' or 'evaluate'".format(args.command))
         
-        
+        '''

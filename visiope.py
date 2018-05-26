@@ -50,7 +50,7 @@ COCO_MODEL_PATH = "mask_rcnn_coco.h5"
 
 # Directory to save logs and model checkpoints, if not provided
 # through the command line argument --logs
-DEFAULT_LOGS_DIR = "./logs"
+DEFAULT_LOGS_DIR = "./logs_VP"
 DEFAULT_DATASET_YEAR = "2014"
 
 
@@ -162,7 +162,7 @@ class VisiopeDataset(utils.Dataset):
             return b
 
     #reads a .bmp mask from HDD (black&white img)
-    #returns a boolean list of lists (H x W)
+    #returns a boolean list of lists (H x W x N)
     def bmpToBinary(self, path):
         img = Image.open(path)
         w, h = img.size
@@ -255,32 +255,6 @@ class VisiopeDataset(utils.Dataset):
 #  COCO Evaluation
 ############################################################
 
-def build_coco_results(dataset, image_ids, rois, class_ids, scores, masks):
-    """Arrange resutls to match COCO specs in http://cocodataset.org/#format
-    """
-    # If no results, return an empty list
-    if rois is None:
-        return []
-
-    results = []
-    for image_id in image_ids:
-        # Loop through detections
-        for i in range(rois.shape[0]):
-            class_id = class_ids[i]
-            score = scores[i]
-            bbox = np.around(rois[i], 1)
-            mask = masks[:, :, i]
-
-            result = {
-                "image_id": image_id,
-                "category_id": dataset.get_source_class_id(class_id, "visiope"),
-                "bbox": [bbox[1], bbox[0], bbox[3] - bbox[1], bbox[2] - bbox[0]],
-                "score": score,
-                "segmentation": maskUtils.encode(np.asfortranarray(mask))
-            }
-            results.append(result)
-    return results
-
 
 def prediction(model, dataset, coco, eval_type="bbox", limit=0, image_ids=None):
     """Runs official COCO evaluation.
@@ -349,7 +323,6 @@ def IoU(bbox_pred, bbox_true, mask_pred, mask_true):
 
 
     return intersection_A / (bbox_true_A + bbox_pred_A - intersection_A)
-
 
 
 def evaluation(image_ids, y_pred, dataset):
@@ -425,7 +398,7 @@ if __name__ == '__main__':
 
     # Parse command line arguments
     parser = argparse.ArgumentParser(
-        description='Train Mask R-CNN on MS COCO.')
+        description='Train Mask R-CNN on VISIOPE')
     parser.add_argument("command",
                         metavar="<command>",
                         help="'train' or 'evaluate' on MS COCO")
@@ -459,9 +432,9 @@ if __name__ == '__main__':
             # one image at a time. Batch size = GPU_COUNT * IMAGES_PER_GPU
             GPU_COUNT = 1
             IMAGES_PER_GPU = 1
-            #DETECTION_MIN_CONFIDENCE = 0.7
+            #DETECTION_MIN_CONFIDENCE = 0
         config = InferenceConfig()
-    config.display()
+    #config.display()
 
     # Create model
     if args.command == "train":
