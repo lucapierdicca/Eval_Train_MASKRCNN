@@ -47,7 +47,7 @@ COCO_MODEL_PATH = "mask_rcnn_coco.h5"
 # Directory to save logs and model checkpoints, if not provided
 # through the command line argument --logs
 DEFAULT_LOGS_DIR = r"./logs_VPF"
-DEFAULT_DATASET_YEAR = "2014"
+DEFAULT_DATASET_YEAR = "2017"
 
 ############################################################
 #  Configurations
@@ -69,7 +69,7 @@ class VisiopeConfig(Config):
     # GPU_COUNT = 8
 
     # Number of classes (including background)
-    NUM_CLASSES = 1 + 15 + 80 ###TODO your assignment
+    NUM_CLASSES = 1 + 3 ###TODO your assignment
 
     STEPS_PER_EPOCH = 5
 
@@ -531,10 +531,8 @@ if __name__ == '__main__':
         # Training dataset. Use the training set and 35K from the
         # validation set, as as in the Mask RCNN paper.
         dataset_train = VisiopeDataset()
-        dataset_train.load_visiope(args.dataset, "train")
-
         args.dataset = "."
-        dataset_train.load_coco(args.dataset, "val", year="2014")
+        dataset_train.load_coco(args.dataset, "val", year="2017", class_ids=[1,2,3])
         #dataset_train.load_visiope(args.dataset, "val", year=args.year, auto_download=args.download)
         dataset_train.prepare()
 
@@ -550,10 +548,8 @@ if __name__ == '__main__':
         
         # Validation dataset
         dataset_val = VisiopeDataset()
-        dataset_val.load_visiope(args.dataset, "val")
-
         args.dataset = "."
-        dataset_val.load_coco(args.dataset, "val", year="2014")
+        dataset_val.load_coco(args.dataset, "val", year="2017", class_ids=[1,2,3])
         dataset_val.prepare()
         
         print("VAL")
