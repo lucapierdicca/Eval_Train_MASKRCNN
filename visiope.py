@@ -19,6 +19,9 @@ Usage: import the module (see Jupyter notebooks for examples), or run from
     python3 coco.py evaluate --dataset=/path/to/coco/ --model=last
 """
 
+import pickle
+
+
 import os
 import sys
 import time
@@ -39,6 +42,8 @@ import shutil
 from mrcnn.config import Config
 from mrcnn import model as modellib, utils
 from mrcnn import visualize
+from PIL import Image, ImageDraw
+
 
 # Path to trained weights file
 COCO_MODEL_PATH = "mask_rcnn_coco.h5"
@@ -291,6 +296,7 @@ def prediction(model, dataset, coco, eval_type="bbox", limit=0, image_ids=None):
         image_ids = image_ids[:limit]
 
     print(image_ids)
+    print(dataset.image_info[image_ids[0]]['path'], dataset.image_info[image_ids[0]]['id'])
 
     y_pred = []
     for image_id in image_ids:
@@ -303,7 +309,38 @@ def prediction(model, dataset, coco, eval_type="bbox", limit=0, image_ids=None):
 
         y_pred.append(r)
 
+
+    pickle.dump(y_pred,open('y_pred_last','wb') ) 
+
     return image_ids, y_pred
+
+
+def IoU(bbox_pred, bbox_true, mask_pred, mask_true):
+    
+    def A(bbox):
+        x0, y0, x1, y1 = bbox[0], bbox[1], bbox[2], bbox[3]
+        return abs(x0-x1)*abs(y0-y1)
+
+    bbox_pred_A = A(bbox_pred)
+    bbox_true_A = A(bbox_true)
+
+    pdraw_pred = ImageDraw.Draw(mask_pred)
+    pdraw_pred.rectangle(bbox_pred, fill=1)
+
+    bool_matrix_pred = np.array(mask_pred)
+
+
+    pdraw_true = ImageDraw.Draw(mask_true)
+    pdraw_true.rectangle(bbox_true, fill=1)
+
+    bool_matrix_true = np.array(mask_true)
+
+    intersection = np.logical_and(bool_matrix_pred, bool_matrix_true)
+
+    intersection_A = np.max(np.count_nonzero(intersection, axis=1))*np.max(np.count_nonzero(intersection, axis=0))
+
+
+    return intersection_A / (bbox_true_A + bbox_pred_A - intersection_A)
 
 
 
@@ -328,48 +365,51 @@ def evaluation(image_ids, y_pred, dataset):
         bbox = utils.extract_bboxes(mask)
         y_true.append([bbox, class_ids, mask])
 
+    pickle.dump(y_true,open('y_true','wb') ) 
 
     ax = get_ax(len(image_ids), 2)
 
-    if len(image_ids <=3):
-        for index, i in enumerate(image_ids):
-            image = dataset.load_image(i)
-            visualize.display_instances(image, 
-                                        y_true[i][0], 
-                                        y_true[i][2], 
-                                        y_true[i][1], 
-                                        dataset.class_names,
-                                        ax=ax[index, 0],
-                                        title="True")
-            visualize.display_instances(image, 
-                                        y_pred[i]['rois'], 
-                                        y_pred[i]['masks'], 
-                                        y_pred[i]['class_ids'], 
-                                        dataset.class_names, 
-                                        y_pred[i]['scores'],
-                                        ax=ax[index, 1],
-                                        title="Predicted")
-        plt.show()
 
-def IoU(bbox_pred, bbox_true):
+
+    # if len(image_ids <=3):
+    #     for index, i in enumerate(image_ids):
+    #         image = dataset.load_image(i)
+    #         visualize.display_instances(image, 
+    #                                     y_true[i][0], 
+    #                                     y_true[i][2], 
+    #                                     y_true[i][1], 
+    #                                     dataset.class_names,
+    #                                     ax=ax[index, 0],
+    #                                     title="True")
+    #         visualize.display_instances(image, 
+    #                                     y_pred[i]['rois'], 
+    #                                     y_pred[i]['masks'], 
+    #                                     y_pred[i]['class_ids'], 
+    #                                     dataset.class_names, 
+    #                                     y_pred[i]['scores'],
+    #                                     ax=ax[index, 1],
+    #                                     title="Predicted")
+    #     plt.show()
+
+
+    image = dataset.load_image(i)
+    w, h = image.shape[0], image.shape[1]
+    print(w,h)
+
+    mask_pred = Image.new('1', (w,h))
+    mask_true = Image.new('1', (w,h))
+
+    bah = []
+    currentIoU = 0
+    for index_true, i in enumerate(y_true[0][0]):
+        bah.append([])
+        for index_pred, j in enumerate(y_pred[0]['rois']):
+            currentIoU = IoU(i, j, mask_pred, mask_true)
+            bah[index_true].append((currentIoU, 
+                                    y_true[0][1][index_true], 
+                                    y_pred[0]['class_ids'][index_pred]))
     
-    def A(bbox):
-        x0, y0, x1, y1 = bbox[0], bbox[1], bbox[2], bbox[3]
-        return abs(x0-x1)*abs(y0-y1)
-
-    bbox_pred_A = A(bbox_pred)
-    bbox_true_A = A(bbox_true)
-
-    
-
-
-
-
-
-
-
-
-
+    return bah
 
 
 ############################################################
@@ -503,9 +543,14 @@ if __name__ == '__main__':
         dataset_val = VisiopeDataset()
         coco = dataset_val.load_visiope(args.dataset, "val", return_coco=True)
         dataset_val.prepare()
+
+
+
         print("Running COCO evaluation on {} images.".format(args.limit))
-        image_ids, y_pred = prediction(model, dataset_val, coco, "bbox", limit=int(args.limit))
-        evaluation(image_ids, y_pred, dataset_val)
+        image_ids, y_pred = prediction(model, dataset_val, coco, "bbox", image_ids=[18])
+        score = evaluation(image_ids, y_pred, dataset_val)
+
+        print(score)
     else:
         print("'{}' is not recognized. "
               "Use 'train' or 'evaluate'".format(args.command))

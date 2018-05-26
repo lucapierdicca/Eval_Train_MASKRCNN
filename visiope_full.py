@@ -564,7 +564,7 @@ if __name__ == '__main__':
         #dataset_train.load_visiope(args.dataset, "val", year=args.year, auto_download=args.download)
         dataset_train.prepare()
 
-        print(dataset_val.class_info)
+        print(dataset_train.class_info)
 
 
         
@@ -573,7 +573,7 @@ if __name__ == '__main__':
         dataset_val.load_visiope(args.dataset, "val")
 
         args.dataset = "."
-        dataset_train.load_coco(args.dataset, "val", year="2014")
+        dataset_val.load_coco(args.dataset, "val", year="2014")
         dataset_val.prepare()
 
         print(dataset_val.class_info)
@@ -623,4 +623,4 @@ if __name__ == '__main__':
         print("'{}' is not recognized. "
               "Use 'train' or 'evaluate'".format(args.command))
         
-        '''
+        
