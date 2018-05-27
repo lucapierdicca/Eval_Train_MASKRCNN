@@ -108,8 +108,8 @@ class VisiopeDataset(utils.Dataset):
 
         #mod class_id to a number of classes
 
-        self.path = "./pngImages"  ##TODO: add the path to the dataset folder
-        self.jsonName = "labelbox.json"  ##TODO: add json file name
+        self.path = "./pngImages_mod"  ##TODO: add the path to the dataset folder
+        self.jsonName = "labelbox_mod.json"  ##TODO: add json file name
         
         jsonPath = self.jsonName
         b = json.load(open(jsonPath))
@@ -138,7 +138,7 @@ class VisiopeDataset(utils.Dataset):
 
         # Add images
         for i in image_ids:
-            self.add_image("visiope", image_id=i, path=dataset_dir + "/image" + str(i) + ".png") #cerca add_image
+            self.add_image("visiope", image_id=i, path=dataset_dir + "/image" + str(i) + ".jpeg") #cerca add_image
         
         if return_coco:
             return b
@@ -167,8 +167,8 @@ class VisiopeDataset(utils.Dataset):
             one mask per instance.
         class_ids: a 1D array of class IDs of the instance masks.
         """
-        path = "./bmpImages"  ##TODO: add the path to the dataset folder
-        self.jsonName = "labelbox.json"  ##TODO: add json file name
+        path = "./bmpImages_mod"  ##TODO: add the path to the dataset folder
+        self.jsonName = "labelbox_mod.json"  ##TODO: add json file name
         self.nomeBase = "image"
         
         ret1 = []
