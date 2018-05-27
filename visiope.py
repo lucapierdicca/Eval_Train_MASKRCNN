@@ -121,7 +121,7 @@ class VisiopeDataset(utils.Dataset):
         self.b = list(b)
 
         
-        all_images_ids = range(len(self.self.b))
+        all_images_ids = range(len(self.b))
 
         np.random.seed(0)
         train_images_ids = sorted(np.random.choice(len(self.b), 
