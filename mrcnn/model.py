@@ -1222,6 +1222,9 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
         mode=config.IMAGE_RESIZE_MODE)
     mask = utils.resize_mask(mask, scale, padding, crop)
 
+    print("FINE")
+    sys.stdout.flush()
+
     # Random horizontal flips.
     # TODO: will be removed in a future update in favor of augmentation
     if augment:
@@ -1287,8 +1290,7 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
                                     window, scale, active_class_ids)
 
 
-    print("FINE")
-    sys.stdout.flush()
+
     return image, image_meta, class_ids, bbox, mask
 
 
