@@ -117,7 +117,7 @@ class VisiopeDataset(utils.Dataset):
 
         classes = []
         image_ids = []  # riempire con gli id di tutte le immagini non skippate
-        
+
         for xx in range(len(b)):
             name = xx
             if b[xx]['Label'] == "Skip":
@@ -223,10 +223,10 @@ class VisiopeDataset(utils.Dataset):
         return mask, class_ids
 
 
-    # def image_reference(self, image_id):
-    #     """Return a link to the image in the COCO Website."""
-    #     info = self.image_info[image_id]['path']
-    #     return info
+    def image_reference(self, image_id):
+        """Return a link to the image in the COCO Website."""
+        info = self.path + "/image" + (str(image_id)) + ".jpeg"
+        return info
 
 
 ############################################################

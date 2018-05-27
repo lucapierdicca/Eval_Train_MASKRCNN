@@ -53,6 +53,9 @@ COCO_MODEL_PATH = "mask_rcnn_coco.h5"
 DEFAULT_LOGS_DIR = "./logs_VP"
 DEFAULT_DATASET_YEAR = "2014"
 
+PNG_IMAGES_PATH = "./pngImages_mod" 
+BMP_IMAGES_PATH = "./bmpImages_mod"
+JSON_PATH       = "labelbox_mod.json"
 
 ############################################################
 #  Configurations
@@ -108,8 +111,8 @@ class VisiopeDataset(utils.Dataset):
 
         #mod class_id to a number of classes
 
-        self.path = "./pngImages"  ##TODO: add the path to the dataset folder
-        self.jsonName = "labelbox.json"  ##TODO: add json file name
+        self.path = PNG_IMAGES_PATH  ##TODO: add the path to the dataset folder
+        self.jsonName = JSON_PATH  ##TODO: add json file name
         
         jsonPath = self.jsonName
         b = json.load(open(jsonPath))
@@ -155,8 +158,11 @@ class VisiopeDataset(utils.Dataset):
             self.add_class("visiope", i+1, classes[i]) #cerca add_class
 
         # Add images
+        img_ext = ".png"
+        if "mod" in JSON_PATH:
+            img_ext = ".jpeg"
         for i in image_ids:
-            self.add_image("visiope", image_id=i, path=dataset_dir + "/image" + str(i) + ".png") #cerca add_image
+            self.add_image("visiope", image_id=i, path=dataset_dir + "/image" + str(i) + img_ext) #cerca add_image
         
         if return_coco:
             return b
@@ -185,8 +191,8 @@ class VisiopeDataset(utils.Dataset):
             one mask per instance.
         class_ids: a 1D array of class IDs of the instance masks.
         """
-        path = "./bmpImages"  ##TODO: add the path to the dataset folder
-        self.jsonName = "labelbox.json"  ##TODO: add json file name
+        path = BMP_IMAGES_PATH  ##TODO: add the path to the dataset folder
+        self.jsonName = JSON_PATH  ##TODO: add json file name
         self.nomeBase = "image"
         
         ret1 = []

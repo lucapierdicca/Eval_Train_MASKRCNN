@@ -8,10 +8,13 @@ jsonName = "labelbox.json"                ##TODO: your json file name
 
 paths = [path + "/" + jsonName,
          path,
-         path + "/" + "pngImages",
-         path + "/" + "bmpImages"]
+         path + "/" + "pngImages_mod",
+         path + "/" + "bmpImages_mod"]
 
 
 test = JSONextractor(paths)
+test.download_check()
 test.extraction()
 test.testing()
+
+

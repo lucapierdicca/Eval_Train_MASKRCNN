@@ -5,6 +5,8 @@ import os
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 import sys
+import imghdr
+from requests import get  # to make GET request
 
 
 class JSONextractor():
@@ -59,6 +61,86 @@ class JSONextractor():
             count += num[x]
 
         print ("There are ", count, " objects labeled in total.")
+    
+
+
+
+    def download_check(self):
+        name = ''
+        os.chdir(self.pngPath)
+        os.mkdir("temp")
+        os.chdir(self.pngPath+"/temp")
+
+        def download(url, file_name):
+            # open in binary mode
+            with open(file_name, "wb", 0) as file:
+                # get request
+                response = get(url)
+                # write to file
+                file.write(response.content)
+
+        i=0
+        for immNum in range(len(self.b)):
+            if self.b[immNum]['Label'] == "Skip":
+                continue
+            name = self.nomeBase + str(immNum)
+            imm = self.b[immNum]['Labeled Data']
+
+            download(imm, name+".png")
+            #urllib.request.urlretrieve(imm, name + ".png")
+
+            ext = imghdr.what(name+'.png')
+            if(ext == 'jpeg' or ext == 'png'):
+                img = Image.open(name+".png")
+                print("%d %s"  % (immNum, ext))
+                if(img.mode != 'RGB'):
+                    print("%d %s to..." % (immNum, img.mode))
+                    conv = img.convert('RGB')
+                    conv.save(self.pngPath+"/"+self.nomeBase+str(i)+".jpeg")
+                    img.close()
+
+                    #check if everything is ok
+                    # img = Image.open(self.pngPath+"/"+self.nomeBase+str(i)+".jpeg")
+                    # print(img.mode, imghdr.what(self.pngPath+"/"+self.nomeBase+str(i)+".jpeg"))
+                    # img.close()
+                    i+=1
+                else:
+                    img.save(self.pngPath+"/"+self.nomeBase+str(i)+".jpeg")
+                    img.close()
+                    # img = Image.open(self.pngPath+"/"+self.nomeBase+str(i)+".jpeg")
+                    # print(img.mode, imghdr.what(self.pngPath+"/"+self.nomeBase+str(i)+".jpeg"))
+                    # img.close()
+                    i+=1
+            else:
+                print("Problem %d %s" % (immNum, ext))
+                self.b[immNum]['Problem']=1
+
+
+        self.b = [img for img in self.b if 'Problem' not in img]
+        
+        with open('../../labelbox_mod.json', 'w') as outfile:
+            json.dump(self.b, outfile)
+
+        print("File in pngImages: %d" % len(os.listdir(self.pngPath)))
+        print("Dict in json: %d" % len(self.b))
+
+
+
+
+
+
+
+    def converti(self, name):
+        path = self.pngPath + "/" + name + ".jpeg"
+        try:
+            img = Image.open(path)
+            file_out = self.bmpPath + "/" + name + ".bmp"
+            img.save(file_out)
+            img.close()
+        except OSError:
+            print("Error: "+path)
+
+            #os.remove(path) 
 
 
 
@@ -72,13 +154,13 @@ class JSONextractor():
             name = self.nomeBase + str(immNum)
             imm = self.b[immNum]['Labeled Data']
             os.chdir(self.pngPath)
-            urllib.request.urlretrieve(imm, name + ".png")
+            #urllib.request.urlretrieve(imm, name + ".png")
 
             self.converti(name)
 
             #img size di img appena scaricata
             #I have to use it for mask(s) creation 
-            im = Image.open(name + ".png")
+            im = Image.open(name + ".jpeg")
             width, height = im.size
             im.close()
 
@@ -102,7 +184,7 @@ class JSONextractor():
                 pdraw.polygon(polygon, fill=(255, 255, 255, 127), outline=(255, 255, 255, 255))
 
                 os.chdir(self.pngPath)
-                mask.save(mask_name + str(i) + '.png')
+                mask.save(mask_name + str(i) + '.jpeg')
                 os.chdir(self.bmpPath)
                 mask.save(mask_name + str(i) + '.bmp') 
         else:
@@ -114,7 +196,7 @@ class JSONextractor():
                 pdraw.polygon(polygon, fill=(255, 255, 255, 127), outline=(255, 255, 255, 255))
 
             os.chdir(self.pngPath)
-            mask.save(mask_name + '0' + '.png')
+            mask.save(mask_name + '0' + '.jpeg')
             os.chdir(self.bmpPath)
             mask.save(mask_name + '0' + '.bmp') 
 
@@ -123,16 +205,6 @@ class JSONextractor():
     def stampa(self):
         print(self.keyDict)
 
-    def converti(self, name):
-        path = self.pngPath + "/" + name + ".png"
-        try:
-            img = Image.open(path)
-            file_out = self.bmpPath + "/" + name + ".bmp"
-            img.save(file_out)
-            img.close()
-        except OSError:
-            print("Error: "+path)
-            #os.remove(path) 
 
 
     def testing(self):
