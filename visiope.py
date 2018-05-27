@@ -82,8 +82,8 @@ class VisiopeConfig(Config):
     STEPS_PER_EPOCH = 5
 
 STAGE_1_EPOCHS = 2#40
-STAGE_2_EPOCHS = 2#120
-STAGE_3_EPOCHS = 2#160
+STAGE_2_EPOCHS = 3#120
+STAGE_3_EPOCHS = 4#160
 
 
 ############################################################
@@ -487,7 +487,7 @@ if __name__ == '__main__':
         # Right/Left flip 50% of the time
         augmentation = imgaug.augmenters.Fliplr(0.5)
 
-
+        
         #*******************************************************************
         # *** This training schedule is an example. Update to your needs ***
 
