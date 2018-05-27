@@ -50,7 +50,7 @@ COCO_MODEL_PATH = "mask_rcnn_coco.h5"
 
 # Directory to save logs and model checkpoints, if not provided
 # through the command line argument --logs
-DEFAULT_LOGS_DIR = "./logs_VP"
+DEFAULT_LOGS_DIR = "./logs_V"
 DEFAULT_DATASET_YEAR = "2014"
 
 PNG_IMAGES_PATH = "./pngImages_mod" 
@@ -77,7 +77,7 @@ class VisiopeConfig(Config):
     # GPU_COUNT = 8
 
     # Number of classes (including background)
-    NUM_CLASSES = 1 + 4 #15 ###TODO your assignment
+    NUM_CLASSES = 1 + 4#15 ###TODO your assignment
 
     STEPS_PER_EPOCH = 5
 
@@ -116,6 +116,8 @@ class VisiopeDataset(utils.Dataset):
         
         jsonPath = self.jsonName
         b = json.load(open(jsonPath))
+
+        #TOGLI COMMENTO SE USI labelbox.json
         #b = [img for img in b if 'Masks' in img and 'image_problems' not in img['Label']]
 
         self.b = list(b)

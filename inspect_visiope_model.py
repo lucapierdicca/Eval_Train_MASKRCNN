@@ -67,7 +67,7 @@ DEVICE = "/cpu:0"  # /cpu:0 or /gpu:0 #OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
 
  # Load validation dataset
 dataset_train = visiope.VisiopeDataset()
-dataset_train.load_visiope(r"./pngImages", "val")
+dataset_train.load_visiope(r"./pngImages_mod", "val")
 
 # Must call before using the dataset
 dataset_train.prepare()
@@ -83,7 +83,7 @@ print("Images: {}\nClasses: {}".format(len(dataset_train.image_ids), dataset_tra
 # MODEL
 #---------------------------------------------------------------------
 # Create model in inference mode
-MODEL_DIR=r"./logs"
+MODEL_DIR="./logs_V"
 with tf.device(DEVICE):
     model = modellib.MaskRCNN(mode="inference", model_dir=MODEL_DIR,
                               config=config)

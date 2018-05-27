@@ -46,7 +46,7 @@ COCO_MODEL_PATH = "mask_rcnn_coco.h5"
 
 # Directory to save logs and model checkpoints, if not provided
 # through the command line argument --logs
-DEFAULT_LOGS_DIR = r"./logs_VPF"
+DEFAULT_LOGS_DIR = "./logs_VF"
 DEFAULT_DATASET_YEAR = "2014"
 
 ############################################################

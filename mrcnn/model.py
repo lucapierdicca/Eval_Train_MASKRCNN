@@ -1207,12 +1207,11 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
         defined in MINI_MASK_SHAPE.
     """
     # Load image and mask
-    print("\n1")
+
     image = dataset.load_image(image_id)
-    print(image.shape)
-    print("2")
+
     mask, class_ids = dataset.load_mask(image_id)
-    print("3")
+
     original_shape = image.shape
     image, window, scale, padding, crop = utils.resize_image(
         image,
@@ -1263,8 +1262,7 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
         # Change mask back to bool
         mask = mask.astype(np.bool)
     
-    print("FINE")
-    sys.stdout.flush()
+
     # Note that some boxes might be all zeros if the corresponding mask got cropped out.
     # and here is to filter them out
     _idx = np.sum(mask, axis=(0, 1)) > 0
@@ -1272,7 +1270,6 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
     class_ids = class_ids[_idx]
 
 
-    
     # Bounding boxes. Note that some boxes might be all zeros
     # if the corresponding mask got cropped out.
     # bbox: [num_instances, (y1, x1, y2, x2)]
@@ -1695,6 +1692,7 @@ def data_generator(dataset, config, shuffle=True, augment=False, augmentation=No
                                              config.RPN_ANCHOR_STRIDE)
 
     # Keras requires a generator to run indefinately.
+    i=0
     while True:
         try:
             # Increment index to pick next image. Shuffle if at the start of an epoch.
@@ -1708,6 +1706,9 @@ def data_generator(dataset, config, shuffle=True, augment=False, augmentation=No
                 load_image_gt(dataset, config, image_id, augment=augment,
                               augmentation=augmentation,
                               use_mini_mask=config.USE_MINI_MASK)
+            print("DOPO")
+            print(i)
+            i+=1
 
             # Skip images that have no instances. This can happen in cases
             # where we train on a subset of classes and the image doesn't
