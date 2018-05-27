@@ -1263,8 +1263,7 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
         # Change mask back to bool
         mask = mask.astype(np.bool)
     
-    print("FINE")
-    sys.stdout.flush()
+
     # Note that some boxes might be all zeros if the corresponding mask got cropped out.
     # and here is to filter them out
     _idx = np.sum(mask, axis=(0, 1)) > 0
@@ -1274,7 +1273,9 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
     # if the corresponding mask got cropped out.
     # bbox: [num_instances, (y1, x1, y2, x2)]
     bbox = utils.extract_bboxes(mask)
-
+    
+    print("FINE")
+    sys.stdout.flush()
     # Active classes
     # Different datasets have different classes, so track the
     # classes supported in the dataset of this image.
