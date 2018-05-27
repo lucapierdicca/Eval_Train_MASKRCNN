@@ -507,7 +507,7 @@ if __name__ == '__main__':
                     learning_rate=config.LEARNING_RATE,
                     epochs=STAGE_1_EPOCHS,
                     layers='heads',
-                    augmentation=augmentation)
+                    augmentation=None) #augmentation
 
         # Training - Stage 2
         # Finetune layers from ResNet stage 4 and up
