@@ -245,7 +245,7 @@ class VisiopeDataset(utils.Dataset):
                 ret1.append(aux)
                 ret2.append(classes.index(nameApp))
 
-        mask = np.stack(ret1, axis=2)
+        mask = np.stack(ret1, axis=2).astype(np.bool)
         class_ids = np.array(ret2, dtype=np.int32)+1
 
         return mask, class_ids
