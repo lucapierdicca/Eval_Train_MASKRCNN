@@ -77,7 +77,7 @@ class VisiopeConfig(Config):
     # GPU_COUNT = 8
 
     # Number of classes (including background)
-    NUM_CLASSES = 1 + 15 ###TODO your assignment
+    NUM_CLASSES = 1 + 4 #15 ###TODO your assignment
 
     STEPS_PER_EPOCH = 5
 
@@ -124,7 +124,7 @@ class VisiopeDataset(utils.Dataset):
         np.random.seed(0)
         train_images_ids = sorted(np.random.choice(len(b), 
                                                    replace=False, 
-                                                   size=int(len(b)*0.9)).tolist())
+                                                   size=int(len(b)*0.9)).tolist())[:3]
         val_images_ids = sorted(list(set(all_images_ids)-set(train_images_ids)))
 
 
@@ -247,6 +247,8 @@ class VisiopeDataset(utils.Dataset):
 
         mask = np.stack(ret1, axis=2).astype(np.bool)
         class_ids = np.array(ret2, dtype=np.int32)+1
+
+        print(len(mask), len(class_ids))
 
         return mask, class_ids
 
