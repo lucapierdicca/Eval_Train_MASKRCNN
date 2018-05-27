@@ -204,7 +204,6 @@ class VisiopeDataset(utils.Dataset):
         #b = json.load(open(jsonPath))
         #b = [img for img in b if 'Masks' in img and 'image_problems' not in img['Label']]
 
-        print(len(self.b))
 
         classes = []
         image_ids = []  # riempire con gli id di tutte le immagini non skippate
@@ -256,7 +255,6 @@ class VisiopeDataset(utils.Dataset):
         mask = np.stack(ret1, axis=2).astype(np.bool)
         class_ids = np.array(ret2, dtype=np.int32)+1
 
-        print(mask.shape, class_ids.shape)
 
         return mask, class_ids
 

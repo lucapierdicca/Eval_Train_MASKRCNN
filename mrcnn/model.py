@@ -1206,9 +1206,12 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
         defined in MINI_MASK_SHAPE.
     """
     # Load image and mask
-    print("ECCOLO")
+    print("1")
     image = dataset.load_image(image_id)
+    print(image.shape)
+    print("2")
     mask, class_ids = dataset.load_mask(image_id)
+    print("3")
     original_shape = image.shape
     image, window, scale, padding, crop = utils.resize_image(
         image,
