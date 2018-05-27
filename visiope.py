@@ -228,12 +228,15 @@ class VisiopeDataset(utils.Dataset):
         immNum = self.image_info[image_id]['id']
         #immNum = image_id
 
+        print(self.image_info[image_id]['id'], self.image_info[image_id]['path'])
+
         if len(b[immNum]['Label']) == 1:
             for x in b[immNum]['Label'].keys():
                 name = x
             nameApp = name
             #TODO forse bisgna aggiungere uno 0 alla fine in questa stringa sotto
             name = path + "/image" + str(immNum) + name + '0' + ".bmp"
+            print(name)
             aux = self.bmpToBinary(name)
             ret1.append(aux)
             ret2.append(classes.index(nameApp))
@@ -242,6 +245,7 @@ class VisiopeDataset(utils.Dataset):
                 name = x
                 nameApp = name
                 name = path + "/image" + str(immNum) + name + str(labels[classes.index(name)]) + ".bmp"
+                print(name)
                 labels[classes.index(x)] += 1
                 aux = self.bmpToBinary(name)
                 ret1.append(aux)
