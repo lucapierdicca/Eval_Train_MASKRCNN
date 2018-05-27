@@ -116,15 +116,17 @@ class VisiopeDataset(utils.Dataset):
         
         jsonPath = self.jsonName
         b = json.load(open(jsonPath))
-        b = [img for img in b if 'Masks' in img and 'image_problems' not in img['Label']]
+        #b = [img for img in b if 'Masks' in img and 'image_problems' not in img['Label']]
+
+        self.b = list(b)
 
         
-        all_images_ids = range(len(b))
+        all_images_ids = range(len(self.self.b))
 
         np.random.seed(0)
-        train_images_ids = sorted(np.random.choice(len(b), 
+        train_images_ids = sorted(np.random.choice(len(self.b), 
                                                    replace=False, 
-                                                   size=int(len(b)*0.9)).tolist())[:3]
+                                                   size=int(len(self.b)*0.9)).tolist())[:3]
         val_images_ids = sorted(list(set(all_images_ids)-set(train_images_ids)))
 
 
@@ -141,11 +143,11 @@ class VisiopeDataset(utils.Dataset):
             
         for xx in selected_subset:
             name = xx
-            if b[xx]['Label'] == "Skip":
+            if self.b[xx]['Label'] == "Skip":
                 continue
             else:
                 image_ids.append(xx)
-            for x in b[xx]['Label'].keys():
+            for x in self.b[xx]['Label'].keys():
                 name = x
                 if name not in classes:
                     classes.append(name)
@@ -165,7 +167,7 @@ class VisiopeDataset(utils.Dataset):
             self.add_image("visiope", image_id=i, path=dataset_dir + "/image" + str(i) + img_ext) #cerca add_image
         
         if return_coco:
-            return b
+            return self.b
 
     #reads a .bmp mask from HDD (black&white img)
     #returns a boolean list of lists (H x W x N)
@@ -192,28 +194,28 @@ class VisiopeDataset(utils.Dataset):
         class_ids: a 1D array of class IDs of the instance masks.
         """
         path = BMP_IMAGES_PATH  ##TODO: add the path to the dataset folder
-        self.jsonName = JSON_PATH  ##TODO: add json file name
+        #self.jsonName = JSON_PATH  ##TODO: add json file name
         self.nomeBase = "image"
         
         ret1 = []
         ret2 = []
 
-        jsonPath = self.jsonName
-        b = json.load(open(jsonPath))
-        b = [img for img in b if 'Masks' in img and 'image_problems' not in img['Label']]
+        #jsonPath = self.jsonName
+        #b = json.load(open(jsonPath))
+        #b = [img for img in b if 'Masks' in img and 'image_problems' not in img['Label']]
 
-        print(len(b))
+        print(len(self.b))
 
         classes = []
         image_ids = []  # riempire con gli id di tutte le immagini non skippate
         masks_per_img = []
-        for xx in range(len(b)):
+        for xx in range(len(self.b)):
             name = xx
-            if b[xx]['Label'] == "Skip":
+            if self.b[xx]['Label'] == "Skip":
                 continue
             else:
                 image_ids.append(xx)
-            for x in b[xx]['Label'].keys():
+            for x in self.b[xx]['Label'].keys():
                 name = x
                 if name not in classes:
                     classes.append(name)
@@ -230,8 +232,8 @@ class VisiopeDataset(utils.Dataset):
 
         print(self.image_info[image_id]['id'], self.image_info[image_id]['path'])
 
-        if len(b[immNum]['Label']) == 1:
-            for x in b[immNum]['Label'].keys():
+        if len(self.b[immNum]['Label']) == 1:
+            for x in self.b[immNum]['Label'].keys():
                 name = x
             nameApp = name
             #TODO forse bisgna aggiungere uno 0 alla fine in questa stringa sotto
@@ -241,7 +243,7 @@ class VisiopeDataset(utils.Dataset):
             ret1.append(aux)
             ret2.append(classes.index(nameApp))
         else:
-            for x in b[immNum]['Label'].keys():
+            for x in self.b[immNum]['Label'].keys():
                 name = x
                 nameApp = name
                 name = path + "/image" + str(immNum) + name + str(labels[classes.index(name)]) + ".bmp"
