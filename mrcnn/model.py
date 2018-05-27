@@ -1206,7 +1206,7 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
         defined in MINI_MASK_SHAPE.
     """
     # Load image and mask
-    print("1")
+    print("\n1")
     image = dataset.load_image(image_id)
     print(image.shape)
     print("2")
