@@ -474,9 +474,10 @@ if __name__ == '__main__':
                             exclude=["mrcnn_class_logits", "mrcnn_bbox_fc","mrcnn_bbox", "mrcnn_mask"])
     elif args.model.lower() == "last":
         model_path = model.find_last()[1]
-       
         print("Loading weights ", model_path)
         model.load_weights(model_path, by_name=True)
+    else:
+        weights_path = args.model.lower()
 
 
 
