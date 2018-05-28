@@ -147,7 +147,7 @@ visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'],
 
 
 
-
+'''
 # LAST
 #----------------------------------------------------------------------------------
 weights_path = model.find_last()[1]
@@ -165,7 +165,7 @@ visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'],
                             dataset_train.class_names, r['scores'], ax=ax[2],
                             title="Predictions_last")
 
-
+'''
 
 
 

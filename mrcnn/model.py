@@ -1265,10 +1265,9 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
 
     # Note that some boxes might be all zeros if the corresponding mask got cropped out.
     # and here is to filter them out
-    
-    # _idx = np.sum(mask, axis=(0, 1)) > 0
-    # mask = mask[:, :, _idx]
-    # class_ids = class_ids[_idx]
+    _idx = np.sum(mask, axis=(0, 1)) > 0
+    mask = mask[:, :, _idx]
+    class_ids = class_ids[_idx]
 
 
     # Bounding boxes. Note that some boxes might be all zeros
@@ -1276,8 +1275,7 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
     # bbox: [num_instances, (y1, x1, y2, x2)]
     bbox = utils.extract_bboxes(mask)
 
-    print(len(bbox))
-    
+
 
     # Active classes
     # Different datasets have different classes, so track the
@@ -1695,7 +1693,7 @@ def data_generator(dataset, config, shuffle=True, augment=False, augmentation=No
                                              config.RPN_ANCHOR_STRIDE)
 
     # Keras requires a generator to run indefinately.
-    i=0
+
     while True:
         try:
             # Increment index to pick next image. Shuffle if at the start of an epoch.
@@ -1709,9 +1707,7 @@ def data_generator(dataset, config, shuffle=True, augment=False, augmentation=No
                 load_image_gt(dataset, config, image_id, augment=augment,
                               augmentation=augmentation,
                               use_mini_mask=config.USE_MINI_MASK)
-            print("DOPO")
-            print(i)
-            i+=1
+
 
             # Skip images that have no instances. This can happen in cases
             # where we train on a subset of classes and the image doesn't

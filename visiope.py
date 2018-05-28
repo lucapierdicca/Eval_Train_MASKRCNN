@@ -77,7 +77,7 @@ class VisiopeConfig(Config):
     # GPU_COUNT = 8
 
     # Number of classes (including background)
-    NUM_CLASSES = 1 + 4#15 ###TODO your assignment
+    NUM_CLASSES = 1 + 15 ###TODO your assignment
 
     STEPS_PER_EPOCH = 5
 
@@ -128,7 +128,7 @@ class VisiopeDataset(utils.Dataset):
         np.random.seed(0)
         train_images_ids = sorted(np.random.choice(len(self.b), 
                                                    replace=False, 
-                                                   size=int(len(self.b)*0.9)).tolist())[:3]
+                                                   size=int(len(self.b)*0.9)).tolist())
         val_images_ids = sorted(list(set(all_images_ids)-set(train_images_ids)))
 
 
@@ -168,6 +168,10 @@ class VisiopeDataset(utils.Dataset):
         for i in image_ids:
             self.add_image("visiope", image_id=i, path=dataset_dir + "/image" + str(i) + img_ext) #cerca add_image
         
+
+        pickle.dump(y_pred,open('y_pred_base','wb') ) 
+
+
         if return_coco:
             return self.b
 
@@ -239,7 +243,7 @@ class VisiopeDataset(utils.Dataset):
             nameApp = name
             #TODO forse bisgna aggiungere uno 0 alla fine in questa stringa sotto
             name = path + "/image" + str(immNum) + name + '0' + ".bmp"
-            print(name)
+            #print(name)
             aux = self.bmpToBinary(name)
             ret1.append(aux)
             ret2.append(classes.index(nameApp))
@@ -248,7 +252,7 @@ class VisiopeDataset(utils.Dataset):
                 name = x
                 nameApp = name
                 name = path + "/image" + str(immNum) + name + str(labels[classes.index(name)]) + ".bmp"
-                print(name)
+                #print(name)
                 labels[classes.index(x)] += 1
                 aux = self.bmpToBinary(name)
                 ret1.append(aux)
@@ -507,7 +511,7 @@ if __name__ == '__main__':
                     learning_rate=config.LEARNING_RATE,
                     epochs=STAGE_1_EPOCHS,
                     layers='heads',
-                    augmentation=None) #augmentation
+                    augmentation=augmentation) 
 
         # Training - Stage 2
         # Finetune layers from ResNet stage 4 and up
