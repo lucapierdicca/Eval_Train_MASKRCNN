@@ -583,7 +583,7 @@ if __name__ == '__main__':
 
 
 
-        selected_COCO_class_ids = None
+        selected_COCO_class_ids = [62,67,90]
 
 
 
@@ -601,7 +601,7 @@ if __name__ == '__main__':
         dataset_train.load_coco(sampling="train", class_ids=selected_COCO_class_ids)
         n_train_COCO_imgs = len(dataset_train.image_info)-n_train_visiope_imgs
         print("N train_COCO images: %d" % n_train_COCO_imgs)
-        
+
         dataset_train.prepare()
         print("N tot train images (train_visiope + train_COCO): %d\n" % len(dataset_train.image_info))
 
