@@ -41,13 +41,20 @@ from mrcnn import model as modellib, utils
 from mrcnn import visualize
 from PIL import Image, ImageDraw
 
-# Path to trained weights file
-COCO_MODEL_PATH = "mask_rcnn_coco.h5"
 
-# Directory to save logs and model checkpoints, if not provided
-# through the command line argument --logs
 DEFAULT_LOGS_DIR = "./logs_VF"
-DEFAULT_DATASET_YEAR = "2014"
+
+
+VISIOPE_PNG_IMAGES_PATH = "./pngImages_mod" 
+VISIOPE_BMP_MASKS_PATH = "./bmpImages_mod"
+VISIOPE_JSON_PATH = "labelbox_mod.json"
+
+
+COCO_IMAGES_PATH = "."
+COCO_SUBSET = "val"
+COCO_YEAR = "2014"
+
+COCO_MODEL_PATH = "mask_rcnn_coco.h5"
 
 ############################################################
 #  Configurations
@@ -73,6 +80,7 @@ class VisiopeConfig(Config):
 
     STEPS_PER_EPOCH = 5
 
+
 STAGE_1_EPOCHS = 2#40
 STAGE_2_EPOCHS = 2#120
 STAGE_3_EPOCHS = 2#160
@@ -84,7 +92,7 @@ STAGE_3_EPOCHS = 2#160
 
 class VisiopeDataset(utils.Dataset):
     
-    def load_visiope(self, dataset_dir, subset, class_ids=None, class_map=None, return_coco=False):
+    def load_visiope(self, sampling, return_coco=False):
         """Load a subset of the COCO dataset.
         dataset_dir: The root directory of the COCO dataset.
         subset: What to load (train, val, minival, valminusminival)
@@ -95,69 +103,93 @@ class VisiopeDataset(utils.Dataset):
         return_coco: If True, returns the COCO object.
         auto_download: Automatically download and unzip MS-COCO images and annotations
         """
-
-        #coco = COCO("{}/annotations/instances_{}{}.json".format(dataset_dir, subset, year))  #file json da aprire
-        #bisogna aprirlo e leggerlo
-
-        #mettere un campo con tutte le classi elencate
-
-        #mod class_id to a number of classes
-
-        self.path = "./pngImages"  ##TODO: add the path to the dataset folder
-        self.jsonName = "labelbox.json"  ##TODO: add json file name
+        assert sampling in ["train", "val"]
+      
+        self.path = VISIOPE_PNG_IMAGES_PATH  ##TODO: add the path to the dataset folder
+        self.jsonName = VISIOPE_JSON_PATH  ##TODO: add json file name
         
-        jsonPath = self.jsonName
-        b = json.load(open(jsonPath))
-        b = [img for img in b if 'Masks' in img and 'image_problems' not in img['Label']]
-
         
-        all_images_ids = range(len(b))
+        b = json.load(open(self.jsonName))
+        #b = [img for img in b if 'Masks' in img and 'image_problems' not in img['Label']]
+        self.b = list(b)
+        
+        all_images_ids = range(len(self.b))
 
         np.random.seed(0)
-        train_images_ids = sorted(np.random.choice(len(b), 
+        train_images_ids = sorted(np.random.choice(len(self.b), 
                                                    replace=False, 
-                                                   size=int(len(b)*0.8)).tolist())
+                                                   size=int(len(self.b)*0.9)).tolist())
         val_images_ids = sorted(list(set(all_images_ids)-set(train_images_ids)))
 
+        self.train_images_ids = train_images_ids
 
-
-        assert subset in ["train", "val"]
 
         classes = []
         image_ids = []  # riempire con gli id di tutte le immagini non skippate
 
-        if subset == 'train':
+        if sampling == 'train':
             selected_subset = train_images_ids
         else:
             selected_subset = val_images_ids
             
         for xx in selected_subset:
             name = xx
-            if b[xx]['Label'] == "Skip":
+            if self.b[xx]['Label'] == "Skip":
                 continue
             else:
                 image_ids.append(xx)
-            for x in b[xx]['Label'].keys():
+            for x in self.b[xx]['Label'].keys():
                 name = x
                 if name not in classes:
                     classes.append(name)
 
         classes = sorted(classes)
 
-
         #Add classes
         for i in range(len(classes)):
-            self.add_class("visiope", i+1, classes[i]) #cerca add_class
+            self.add_class("visiope", i+1, classes[i]) 
 
         # Add images
         for i in image_ids:
-            self.add_image("visiope", image_id=i, path=dataset_dir + "/image" + str(i) + ".png") #cerca add_image
+            self.add_image("visiope", 
+                            image_id=i, 
+                            path=VISIOPE_PNG_IMAGES_PATH+"/image"+str(i)+".jpeg", 
+                            labels={lbl:len(val) if lbl != 'Straight razor' else 1 for lbl,val in self.b[i]['Label'].items()}) #cerca add_image
         
         if return_coco:
-            return b
+            return self.b
 
 
-    def load_coco(self, dataset_dir, subset, year=DEFAULT_DATASET_YEAR, class_ids=None, class_map=None, return_coco=False, auto_download=False):
+    def get_dataset_distribution(self):
+        COCOcatid_to_label={i['id']:i['name'] for i in self.class_info if i['source'] == 'coco'}
+
+        stat_dict = {}
+        for i in self.image_info:
+            if i['source'] == 'visiope':
+                for k,v in i['labels'].items():
+                    if k in stat_dict:
+                        stat_dict[k] += v
+                    else:
+                        stat_dict[k] = v
+            else:
+                for j in i['annotations']:
+                    if COCOcatid_to_label[j['category_id']] in stat_dict:
+                        stat_dict[COCOcatid_to_label[j['category_id']]] += 1
+                    else:
+                        stat_dict[COCOcatid_to_label[j['category_id']]] = 1     
+
+        tot = 0
+        for v in stat_dict.values():
+            tot+=v
+
+        for k,v in stat_dict.items():
+            stat_dict[k] = (v, str(round(v/tot*100))+"%")
+
+        return stat_dict            
+
+
+
+    def load_coco(self, sampling=None, class_ids=None, return_coco=False):
         """Load a subset of the COCO dataset.
         dataset_dir: The root directory of the COCO dataset.
         subset: What to load (train, val, minival, valminusminival)
@@ -169,13 +201,12 @@ class VisiopeDataset(utils.Dataset):
         auto_download: Automatically download and unzip MS-COCO images and annotations
         """
 
-        # if auto_download is True:
-        #     self.auto_download(dataset_dir, subset, year)
+        assert sampling in ["train", "val"]
 
-        coco = COCO("{}/annotations/instances_{}{}.json".format(dataset_dir, subset, year))
-        if subset == "minival" or subset == "valminusminival":
-            subset = "val"
-        image_dir = "{}/{}{}".format(dataset_dir, subset, year)
+
+        coco = COCO("{}/annotations/instances_{}{}.json".format(COCO_IMAGES_PATH, COCO_SUBSET, COCO_YEAR))
+        image_dir = "{}/{}{}".format(COCO_IMAGES_PATH, COCO_SUBSET, COCO_YEAR)
+
 
         # Load all classes or a subset?
         if not class_ids:
@@ -185,19 +216,37 @@ class VisiopeDataset(utils.Dataset):
         # All images or a subset?
         if class_ids:
             image_ids = []
+            coco_nimgs_per_class = int(len(self.train_images_ids)*0.55)
+            print("COCO N CLASSES: %d" % len(class_ids))
+            print("COCO N IMAGES PER CLASS: %d" % coco_nimgs_per_class)
+            print("COCO N TOTAL IMAGES: %d" % (len(class_ids)*coco_nimgs_per_class))
             for id in class_ids:
-                image_ids.extend(list(coco.getImgIds(catIds=[id])))
+                image_ids.extend(list(coco.getImgIds(catIds=[id]))[:coco_nimgs_per_class])
             # Remove duplicates
             image_ids = list(set(image_ids))
+
         else:
             # All images
             image_ids = list(coco.imgs.keys())
+
+        np.random.seed(0)
+        indices_train_images_ids = sorted(np.random.choice(len(image_ids), 
+                                                   replace=False, 
+                                                   size=int(len(image_ids)*0.9)).tolist())
+        train_images_ids = sorted([image_ids[i] for i in indices_train_images_ids])
+        
+        val_images_ids = sorted(list(set(image_ids)-set(train_images_ids))) 
+        
 
         # Add classes
         for i in class_ids:
             self.add_class("coco", i, coco.loadCats(i)[0]["name"])
 
         # Add images
+        if sampling=="train":
+            image_ids = train_images_ids
+        else:
+            image_ids = val_images_ids
         for i in image_ids:
             self.add_image(
                 "coco", image_id=i,
@@ -208,6 +257,9 @@ class VisiopeDataset(utils.Dataset):
                     imgIds=[i], catIds=class_ids, iscrowd=None)))
         if return_coco:
             return coco
+    
+
+
 
 
     def load_mask_visiope(self, image_id):
@@ -220,27 +272,27 @@ class VisiopeDataset(utils.Dataset):
             one mask per instance.
         class_ids: a 1D array of class IDs of the instance masks.
         """
-        path = "./bmpImages"  ##TODO: add the path to the dataset folder
-        self.jsonName = "labelbox.json"  ##TODO: add json file name
+        path = VISIOPE_BMP_MASKS_PATH  ##TODO: add the path to the dataset folder
+        #self.jsonName = "labelbox.json"  ##TODO: add json file name
         self.nomeBase = "image"
         
         ret1 = []
         ret2 = []
 
-        jsonPath = self.jsonName
-        b = json.load(open(jsonPath))
-        b = [img for img in b if 'Masks' in img and 'image_problems' not in img['Label']]
+        #jsonPath = self.jsonName
+        #b = json.load(open(jsonPath))
+        #b = [img for img in b if 'Masks' in img and 'image_problems' not in img['Label']]
 
         classes = []
         image_ids = []  # riempire con gli id di tutte le immagini non skippate
         masks_per_img = []
-        for xx in range(len(b)):
+        for xx in range(len(self.b)):
             name = xx
-            if b[xx]['Label'] == "Skip":
+            if self.b[xx]['Label'] == "Skip":
                 continue
             else:
                 image_ids.append(xx)
-            for x in b[xx]['Label'].keys():
+            for x in self.b[xx]['Label'].keys():
                 name = x
                 if name not in classes:
                     classes.append(name)
@@ -255,8 +307,8 @@ class VisiopeDataset(utils.Dataset):
         immNum = self.image_info[image_id]['id']
         #immNum = image_id
 
-        if len(b[immNum]['Label']) == 1:
-            for x in b[immNum]['Label'].keys():
+        if len(self.b[immNum]['Label']) == 1:
+            for x in self.b[immNum]['Label'].keys():
                 name = x
             nameApp = name
             #TODO forse bisgna aggiungere uno 0 alla fine in questa stringa sotto
@@ -265,7 +317,7 @@ class VisiopeDataset(utils.Dataset):
             ret1.append(aux)
             ret2.append(classes.index(nameApp))
         else:
-            for x in b[immNum]['Label'].keys():
+            for x in self.b[immNum]['Label'].keys():
                 name = x
                 nameApp = name
                 name = path + "/image" + str(immNum) + name + str(labels[classes.index(name)]) + ".bmp"
@@ -274,7 +326,7 @@ class VisiopeDataset(utils.Dataset):
                 ret1.append(aux)
                 ret2.append(classes.index(nameApp))
         
-        mask = np.stack(ret1, axis=2)
+        mask = np.stack(ret1, axis=2).astype(np.bool)
         class_ids = np.array(ret2, dtype=np.int32)+1
 
         return mask, class_ids
@@ -466,9 +518,6 @@ if __name__ == '__main__':
     parser.add_argument("command",
                         metavar="<command>",
                         help="'train' or 'evaluate' on MS COCO")
-    parser.add_argument('--dataset', required=True,
-                        metavar="/path/to/coco/",
-                        help='Directory of the MS-COCO dataset')
     parser.add_argument('--model', required=True,
                         metavar="/path/to/weights.h5",
                         help="Path to weights .h5 file or 'coco'")
@@ -483,8 +532,8 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     print("Command: ", args.command)
-    print("Model: ", args.model)
-    print("Dataset: ", args.dataset)
+    print("Model chkpt: ", args.model)
+    print("Datasets: VISIOPE %s-%s \n\tCOCO %s" % (VISIOPE_PNG_IMAGES_PATH, VISIOPE_BMP_MASKS_PATH, COCO_IMAGES_PATH+"/"+COCO_SUBSET+COCO_YEAR))
     print("Logs: ", args.logs)
 
     # Configurations
@@ -525,48 +574,74 @@ if __name__ == '__main__':
 
 
 
-
     # Train or evaluate
     if args.command == "train":
         
         # Training dataset. Use the training set and 35K from the
         # validation set, as as in the Mask RCNN paper.
+        from pprint import pprint
+
+
+
+        selected_COCO_class_ids = None
+
+
+
+        
+        print("\n======TRAINING SET======")
         dataset_train = VisiopeDataset()
-        dataset_train.load_visiope(args.dataset, "train")
 
-        args.dataset = "."
-        dataset_train.load_coco(args.dataset, "val", year="2014")
-        #dataset_train.load_visiope(args.dataset, "val", year=args.year, auto_download=args.download)
+        dataset_train.load_visiope(sampling="train")
+        print("\nN tot_visiope images: %d" % len(dataset_train.b))
+
+        n_train_visiope_imgs = len(dataset_train.image_info)
+        print("N train_visiope images: %d" % n_train_visiope_imgs)
+        
+
+        dataset_train.load_coco(sampling="train", class_ids=selected_COCO_class_ids)
+        n_train_COCO_imgs = len(dataset_train.image_info)-n_train_visiope_imgs
+        print("N train_COCO images: %d" % n_train_COCO_imgs)
+        
         dataset_train.prepare()
+        print("N tot train images (train_visiope + train_COCO): %d\n" % len(dataset_train.image_info))
 
-        print("TRAIN")
-        print(dataset_train.class_info)
-        print(dataset_train.num_classes)
-        print(dataset_train.class_from_source_map)
+        dataset_train_distro = dataset_train.get_dataset_distribution()
+        print("N train_classes: %d" % len(dataset_train_distro))
+        pprint(dataset_train_distro)
 
 
         print('')
         print('')
         
         
-        # Validation dataset
+        print("\n======VALIDATION SET======")
         dataset_val = VisiopeDataset()
-        dataset_val.load_visiope(args.dataset, "val")
 
-        args.dataset = "."
-        dataset_val.load_coco(args.dataset, "val", year="2014")
-        dataset_val.prepare()
+        dataset_val.load_visiope(sampling="val")
+        print("\nN tot_visiope images: %d" % len(dataset_val.b))
+
+        n_val_visiope_imgs = len(dataset_val.image_info)
+        print("N val_visiope images: %d" % n_val_visiope_imgs)
+
+
+        dataset_val.load_coco(sampling="val", class_ids=selected_COCO_class_ids)
+        n_val_COCO_imgs = len(dataset_val.image_info)-n_val_visiope_imgs
+        print("N val_COCO images: %d" % n_val_COCO_imgs)
         
-        print("VAL")
-        print(dataset_train.class_info)
-        print(dataset_train.num_classes)
-        print(dataset_train.class_from_source_map)
+        dataset_val.prepare()
+        print("N tot val images (val_visiope + val_COCO): %d\n" % len(dataset_val.image_info))
+
+
+        dataset_val_distro = dataset_val.get_dataset_distribution()
+        print("N val_classes: %d" % len(dataset_val_distro))
+        pprint(dataset_val_distro)
+
 
         # Image Augmentation
         # Right/Left flip 50% of the time
         augmentation = imgaug.augmenters.Fliplr(0.5)
 
-
+        '''
         #*******************************************************************
         # *** This training schedule is an example. Update to your needs ***
 
@@ -606,4 +681,4 @@ if __name__ == '__main__':
     else:
         print("'{}' is not recognized. "
               "Use 'train' or 'evaluate'".format(args.command))
-        
+        '''

@@ -169,9 +169,6 @@ class VisiopeDataset(utils.Dataset):
             self.add_image("visiope", image_id=i, path=dataset_dir + "/image" + str(i) + img_ext) #cerca add_image
         
 
-        pickle.dump(y_pred,open('y_pred_base','wb') ) 
-
-
         if return_coco:
             return self.b
 

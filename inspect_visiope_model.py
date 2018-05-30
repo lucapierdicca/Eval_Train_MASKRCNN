@@ -111,7 +111,7 @@ print("image ID: {}.{} ({}) {}".format(info["source"], info["id"], image_id,
 
 
 # CREATE SUBPLOTS
-ax = get_ax(1,3)
+ax = get_ax(1,4)
 
 
 
@@ -125,7 +125,7 @@ visualize.display_instances(image, gt_bbox, gt_mask, gt_class_id,
 
 
 
-
+'''
 # BASE
 #------------------------------------------------------------------------------------
 weights_path = "mask_rcnn_coco.h5"
@@ -143,7 +143,7 @@ visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'],
                             dataset_train.class_names, r['scores'], ax=ax[1],
                             title="Predictions_base")
 
-
+'''
 
 
 
@@ -166,6 +166,26 @@ visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'],
                             title="Predictions_last")
 
 '''
+
+
+
+# LASTLAST
+#----------------------------------------------------------------------------------
+weights_path = "./logs_ultimo/mask_rcnn_visiope_0004.h5"
+print("Model weights path: ", weights_path)
+model.load_weights(weights_path, by_name=True)
+
+# Run object detection
+results = model.detect([image], verbose=0)
+
+print("ROIS: %d" % len(results[0]['rois']))
+
+# Display results
+r = results[0]
+visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'], 
+                            dataset_train.class_names, r['scores'], ax=ax[3],
+                            title="Predictions_last_last")
+
 
 
 
