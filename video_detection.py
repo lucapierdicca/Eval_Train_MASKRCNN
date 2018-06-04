@@ -36,7 +36,7 @@ def random_colors(N, bright=True):
     brightness = 1.0 if bright else 0.7
     hsv = [(i / N, 1, brightness) for i in range(N)]
     colors = list(map(lambda c: colorsys.hsv_to_rgb(*c), hsv))
-    #random.shuffle(colors)
+    random.shuffle(colors)
     return colors
 
 
@@ -205,11 +205,11 @@ def detection_to_video(model, dataset, colors, show_bbox=False, early_stop=0, vi
     vwriter = cv2.VideoWriter(file_name, cv2.VideoWriter_fourcc(*'MJPG'), 15.0, (width, height))
     
     for i in range(img_range-1):
-        img = cv2.imread('image'+str(i)+'.png')
+        img = cv2.imread('./imgs/image'+str(i)+'.png')
         vwriter.write(img)
 
     vwriter.release()
-    #shutil.rmtree(r"./imgs")
+    shutil.rmtree(r"./imgs")
 
     print("Saved to ", file_name)
 
