@@ -173,7 +173,7 @@ def detection_to_video(model, dataset, video_path=None):
 			# Create a plot made of frame+masks+bboxes
             display_instances(image, r['rois'], r['masks'], r['class_ids'], dataset.class_names, scores=r['scores'])
             # Save it on the HDD
-            plt.savefig("image" + str(count),facecolor=None, edgecolor=None)
+            plt.savefig("image" + str(count), bbox_inches='tight')
             plt.close()
             
             count += 1
