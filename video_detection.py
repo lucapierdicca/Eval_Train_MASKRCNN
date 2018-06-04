@@ -140,7 +140,7 @@ def apply_mask(image, mask, color, alpha=0.5):
 
 
 
-def detection_to_video(model, dataset, colors, video_path=None):
+def detection_to_video(model, dataset, colors, show_bbox, video_path=None):
         
     import cv2
     # Video capture
@@ -171,7 +171,7 @@ def detection_to_video(model, dataset, colors, video_path=None):
             print("ROIS: %d" % len(r['rois']))
             detection_list.append(r)
 			# Create a plot made of frame+masks+bboxes
-            display_instances(image, r['rois'], r['masks'], r['class_ids'], dataset.class_names, scores=r['scores'], colors=colors)
+            display_instances(image, r['rois'], r['masks'], r['class_ids'], dataset.class_names, scores=r['scores'], colors=colors, show_bbox=show_bbox)
             # Save it on the HDD
             plt.savefig("image" + str(count), bbox_inches='tight')
             plt.close()
@@ -288,5 +288,5 @@ video_path= "v.mp4"
 
 colors = random_colors(15+18, bright=True)
 
-detection_to_video(model, dataset_val, video_path=video_path, colors=colors, show_bbox=False)
+detection_to_video(model, dataset_val, colors, False, video_path=video_path)
 
