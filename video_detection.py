@@ -113,9 +113,8 @@ def detect_and_color_splash(model, dataset, video_path=None):
             plt.clf()
             plt.close()
             # Load it back as a numpy array
-            numpy_frame = io.imread("image" + str(count) + '.png')
-            numpy_frame = numpy_frame[:,:,:-1]
-
+            numpy_frame = cv2.imread("image" + str(count) + '.png', 3)
+            numpy_frame = numpy_frame.astype(np.uint8)
             print(numpy_frame.shape)
             # RGB -> BGR to save image to video
             numpy_frame = numpy_frame[..., ::-1]
