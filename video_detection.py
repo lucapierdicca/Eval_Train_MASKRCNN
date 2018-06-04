@@ -157,7 +157,7 @@ def detection_to_video(model, dataset, video_path=None):
     count = 0
     success = True
     detection_list = []
-    early_stop = 100
+    early_stop = 50
 	
     while success:
         print("frame: %d / %d" % (count, n_frames))
@@ -286,5 +286,7 @@ print("N tot val images (val_visiope + val_COCO): %d\n" % len(dataset_val.image_
 #---------------------------------------------------------------------
 video_path= "v.mp4"
 
-detection_to_video(model, dataset_val, video_path=video_path)
+colors = random_colors(15+18, bright=True)
+
+detection_to_video(model, dataset_val, video_path=video_path, colors=colors, show_bbox=False)
 
