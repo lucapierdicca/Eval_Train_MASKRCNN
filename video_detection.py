@@ -173,6 +173,9 @@ model.load_weights(weights_path, by_name=True)
 
 # LOAD DATASET (we need it to obtain the mapping class_id:class_name)
 #---------------------------------------------------------------------------------
+selected_COCO_class_ids = [27,31,47,51,62,65,67,70,72,73,78,79,81,82,84,85,87,90]
+
+
 print("\n======VALIDATION SET======")
 dataset_val = visiope_full.VisiopeDataset()
 
