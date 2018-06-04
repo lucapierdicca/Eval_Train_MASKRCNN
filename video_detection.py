@@ -117,7 +117,7 @@ def detect_and_color_splash(model, dataset, video_path=None):
             # Add image to video writer
             vwriter.write(numpy_frame)
             count += 1
-            if count == 50:
+            if count == 100:
                 break
           
     vwriter.release()
