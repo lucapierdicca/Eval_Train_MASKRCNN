@@ -10,6 +10,7 @@ import pickle
 import colorsys
 from mrcnn import model as modellib
 from skimage.measure import find_contours
+from matplotlib import patches,  lines
 
 
 
@@ -120,7 +121,7 @@ def display_instances(image, boxes, masks, class_ids, class_names,
         for verts in contours:
             # Subtract the padding and flip (y, x) to (x, y)
             verts = np.fliplr(verts) - 1
-            p = Polygon(verts, facecolor="none", edgecolor=color)
+            p = patches.Polygon(verts, facecolor="none", edgecolor=color)
             ax.add_patch(p)
     ax.imshow(masked_image.astype(np.uint8))
     if auto_show:
