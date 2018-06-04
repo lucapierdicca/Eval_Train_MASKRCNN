@@ -304,5 +304,5 @@ print("N tot val images (val_visiope + val_COCO): %d\n" % len(dataset_val.image_
 #---------------------------------------------------------------------
 video_path= "v.mp4"
 
-detect_and_color_splash(model, dataset_val, video_path=video_path)
+detection_to_video(model, dataset_val, video_path=video_path)
 
