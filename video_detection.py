@@ -11,6 +11,7 @@ import colorsys
 from mrcnn import model as modellib
 from skimage.measure import find_contours
 from matplotlib import patches,  lines
+import os
 
 
 
@@ -26,7 +27,6 @@ def get_ax(rows=1, cols=1, size=16):
     return ax
 
 	
-	
 def random_colors(N, bright=True):
     """
     Generate random colors.
@@ -38,6 +38,7 @@ def random_colors(N, bright=True):
     colors = list(map(lambda c: colorsys.hsv_to_rgb(*c), hsv))
     #random.shuffle(colors)
     return colors
+
 
 
 def display_instances(image, boxes, masks, class_ids, class_names,
@@ -127,6 +128,8 @@ def display_instances(image, boxes, masks, class_ids, class_names,
     if auto_show:
         plt.show()
 
+
+
 def apply_mask(image, mask, color, alpha=0.5):
     """Apply the given mask to the image.
     """
@@ -139,8 +142,7 @@ def apply_mask(image, mask, color, alpha=0.5):
 
 
 
-
-def detection_to_video(model, dataset, colors, show_bbox, video_path=None):
+def detection_to_video(model, dataset, colors, show_bbox=False, early_stop=0, video_path=None):
         
     import cv2
     # Video capture
@@ -157,7 +159,7 @@ def detection_to_video(model, dataset, colors, show_bbox, video_path=None):
     count = 0
     success = True
     detection_list = []
-    early_stop = 50
+    early_stop = early_stop
 	
     while success:
         print("frame: %d / %d" % (count, n_frames))
@@ -173,7 +175,7 @@ def detection_to_video(model, dataset, colors, show_bbox, video_path=None):
 			# Create a plot made of frame+masks+bboxes
             display_instances(image, r['rois'], r['masks'], r['class_ids'], dataset.class_names, scores=r['scores'], colors=colors, show_bbox=show_bbox)
             # Save it on the HDD
-            plt.savefig("image" + str(count), bbox_inches='tight')
+            plt.savefig(r"./imgs/image" + str(count), bbox_inches='tight')
             plt.close()
             
             count += 1
@@ -193,15 +195,16 @@ def detection_to_video(model, dataset, colors, show_bbox, video_path=None):
 
     file_name = "detected_"+video_path
     
-    img = cv2.imread('image0.png')
+    img = cv2.imread(r'image0.png')
     height,width,layers=img.shape
     
     vwriter = cv2.VideoWriter(file_name, cv2.VideoWriter_fourcc(*'MJPG'), 15.0, (width, height))
     
     for i in range(img_range-1):
-        img = cv2.imread('image'+str(i)+'.png')
+        img = cv2.imread(r'image'+str(i)+'.png')
         vwriter.write(img)
 
+    os.rmdir(r"./imgs")
     vwriter.release()
     print("Saved to ", file_name)
 
@@ -284,9 +287,9 @@ print("N tot val images (val_visiope + val_COCO): %d\n" % len(dataset_val.image_
 
 # VIDEO
 #---------------------------------------------------------------------
-video_path= "v.mp4"
+video_path= r"v.mp4"
 
 colors = random_colors(15+18, bright=True)
 
-detection_to_video(model, dataset_val, colors, False, video_path=video_path)
+detection_to_video(model, dataset_val, colors, show_bbox=False, early_stop=50, video_path=video_path)
 
