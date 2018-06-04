@@ -109,7 +109,7 @@ def detect_and_color_splash(model, dataset, video_path=None):
             # Save it on the HDD
             plt.savefig("image" + str(count))
             # Load it back as a numpy array
-            numpy_frame = io.imread("image" + str(count))
+            numpy_frame = io.imread("image" + str(count) + '.png')
             # RGB -> BGR to save image to video
             numpy_frame = numpy_frame[..., ::-1]
             # Add image to video writer
