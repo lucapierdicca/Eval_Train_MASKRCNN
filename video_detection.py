@@ -41,7 +41,6 @@ def get_ax(rows=1, cols=1, size=16):
 
 	
 	
-	
 def color_splash(image, mask):
     """Apply color splash effect.
     image: RGB image [height, width, 3]
@@ -65,12 +64,12 @@ def color_splash(image, mask):
     else:
         mask = np.full((gray.shape[0], gray.shape[1], gray.shape[2]), False)
         
-        #print(mask)
         splash = np.where(mask, image, gray).astype(np.uint8)
             
-        
     return splash
-	
+
+
+
 def detect_and_color_splash(model, dataset, image_path=None, video_path=None):
     assert image_path or video_path
 
@@ -143,21 +142,32 @@ config = InferenceConfig()
 DEVICE = "/gpu:0"  # /cpu:0 or /gpu:0 
 
 
+
+
+
 # MODEL
 #---------------------------------------------------------------------
 # Create model in inference mode
-MODEL_DIR= r"C:\Users\Edoardo\My_Works\FILES PER PROGETTO"
+MODEL_DIR= r"./logs_VF"
 
 with tf.device(DEVICE):
     model = modellib.MaskRCNN(mode="inference", model_dir=MODEL_DIR,
                               config=config)
 
 
+
+
+
+
 # LOAD CHKPT
 #----------------------------------------------------------------------------------
-weights_path = r"C:\Users\Edoardo\My_Works\FILES PER PROGETTO\mask_rcnn_visiope_0080.h5"
+weights_path = r"./logs_VF/mask_rcnn_visiope_0080.h5"
 print("Model weights path: ", weights_path)
 model.load_weights(weights_path, by_name=True)
+
+
+
+
 
 
 
@@ -182,13 +192,13 @@ print("N tot val images (val_visiope + val_COCO): %d\n" % len(dataset_val.image_
 
 
 
+
+
+
+
 # VIDEO
 #---------------------------------------------------------------------
-video_path= r'E:\Edoardo\Università\Magistrale\Vision and Perception\V&P - video for project\Personal Care\Shaving\DLJFoRluYx4.mp4'
-#cap = cv2.VideoCapture(r'E:\Edoardo\Università\Magistrale\Vision and Perception\V&P - video for project\Personal Care\Shaving\DLJFoRluYx4.mp4')
+video_path= r'Putting_on_make_up.mp4'
 
-
-
-# START VIDEO CREATION
 detect_and_color_splash(model, dataset_val video_path)
 

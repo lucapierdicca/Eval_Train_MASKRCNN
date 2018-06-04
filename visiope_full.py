@@ -52,7 +52,7 @@ VISIOPE_JSON_PATH = "labelbox_mod.json"
 
 COCO_IMAGES_PATH = "."
 COCO_SUBSET = "val"
-COCO_YEAR = "2014"
+COCO_YEAR = "2017"
 
 COCO_MODEL_PATH = "mask_rcnn_coco.h5"
 
@@ -76,7 +76,7 @@ class VisiopeConfig(Config):
     # GPU_COUNT = 8
 
     # Number of classes (including background)
-    NUM_CLASSES = 1 + 15 + 80 ###TODO your assignment
+    NUM_CLASSES = 1 + 15 + 18 ###TODO your assignment
 
     STEPS_PER_EPOCH = 5
 
