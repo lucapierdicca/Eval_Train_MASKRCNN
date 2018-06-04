@@ -99,7 +99,9 @@ def detect_and_color_splash(model, dataset, video_path=None):
         print(success)
         if success:
             # OpenCV returns images as BGR, convert to RGB
+            print(image.shape)
             image = image[..., ::-1]
+            print(image.shape)
             # Detect objects
             r = model.detect([image], verbose=0)[0]
             print("ROIS: %d" % len(r['rois']))
@@ -112,8 +114,11 @@ def detect_and_color_splash(model, dataset, video_path=None):
             plt.close()
             # Load it back as a numpy array
             numpy_frame = io.imread("image" + str(count) + '.png')
+
+            print(numpy_frame.shape)
             # RGB -> BGR to save image to video
             numpy_frame = numpy_frame[..., ::-1]
+            print(numpy_frame.shape)
             # Add image to video writer
             vwriter.write(numpy_frame)
             count += 1
