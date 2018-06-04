@@ -160,6 +160,9 @@ def detection_to_video(model, dataset, colors, show_bbox=False, early_stop=0, vi
     success = True
     detection_list = []
     early_stop = early_stop
+
+    os.mkdir(r"./imgs")
+
 	
     while success:
         print("frame: %d / %d" % (count, n_frames))
@@ -175,7 +178,6 @@ def detection_to_video(model, dataset, colors, show_bbox=False, early_stop=0, vi
 			# Create a plot made of frame+masks+bboxes
             display_instances(image, r['rois'], r['masks'], r['class_ids'], dataset.class_names, scores=r['scores'], colors=colors, show_bbox=show_bbox)
             # Save it on the HDD
-            os.mkdir(r"./imgs")
             plt.savefig(r"./imgs/image" + str(count), bbox_inches='tight')
             plt.close()
             
