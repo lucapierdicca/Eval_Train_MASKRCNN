@@ -85,7 +85,8 @@ def display_instances(image, boxes, masks, class_ids, class_names,
     for i in range(N):
         color = colors[class_ids[i]]
 
-        print("%d:(%d,%d,%d)" % (class_ids[i], color[0], color[1], color[2]))
+        print("%d:%s:(%f,%f,%f)" % (class_ids[i], class_names[class_ids[i]], color[0], color[1], color[2]))
+
 
         # Bounding box
         if not np.any(boxes[i]):
@@ -190,8 +191,6 @@ def detection_to_video(model, dataset, colors, show_bbox=False, early_stop=0, vi
           
     pickle.dump(detection_list, open(detection_list_name, 'wb'))
 
-
-
     img_range = 0
     if early_stop == 0:
         img_range=n_frames
@@ -200,7 +199,7 @@ def detection_to_video(model, dataset, colors, show_bbox=False, early_stop=0, vi
 
     file_name = "detected_"+video_path
     
-    img = cv2.imread(r'image0.png')
+    img = cv2.imread(r'./imgs/image0.png')
     height,width,layers=img.shape
     
     vwriter = cv2.VideoWriter(file_name, cv2.VideoWriter_fourcc(*'MJPG'), 15.0, (width, height))
@@ -285,6 +284,7 @@ print("N val_COCO images: %d" % n_val_COCO_imgs)
 dataset_val.prepare()
 print("N tot val images (val_visiope + val_COCO): %d\n" % len(dataset_val.image_info))
 
+print(dataset_val.class_info)
 
 
 
@@ -296,6 +296,8 @@ print("N tot val images (val_visiope + val_COCO): %d\n" % len(dataset_val.image_
 video_path= r"v.mp4"
 
 colors = random_colors(15+18, bright=True)
+
+print(colors)
 
 detection_to_video(model, dataset_val, colors, show_bbox=False, early_stop=50, video_path=video_path)
 
