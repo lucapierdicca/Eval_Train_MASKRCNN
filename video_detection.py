@@ -85,6 +85,8 @@ def display_instances(image, boxes, masks, class_ids, class_names,
     for i in range(N):
         color = colors[class_ids[i]]
 
+        print("%d:(%d,%d,%d)" % (class_ids[i], color[0], color[1], color[2]))
+
         # Bounding box
         if not np.any(boxes[i]):
             # Skip this instance. Has no bbox. Likely lost in image cropping.
