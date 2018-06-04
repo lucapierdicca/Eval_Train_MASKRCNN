@@ -121,7 +121,7 @@ ax = get_ax()
 
 # GROUND TRUTH
 #-----------------------------------------------------------------------------------
-ax = visualize.display_instances(image, gt_bbox, gt_mask, gt_class_id, 
+visualize.display_instances(image, gt_bbox, gt_mask, gt_class_id, 
                             dataset_train.class_names, ax=ax,
                             title="Ground_Truth")
 
