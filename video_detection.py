@@ -12,7 +12,7 @@ from mrcnn import model as modellib
 from skimage.measure import find_contours
 from matplotlib import patches,  lines
 import os
-
+import shutil
 
 
 def get_ax(rows=1, cols=1, size=16):
@@ -207,8 +207,9 @@ def detection_to_video(model, dataset, colors, show_bbox=False, early_stop=0, vi
         img = cv2.imread(r'image'+str(i)+'.png')
         vwriter.write(img)
 
-    os.rmdir(r"./imgs")
     vwriter.release()
+    shutil.rmtree(r"./imgs")
+
     print("Saved to ", file_name)
 
 
