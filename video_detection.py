@@ -164,7 +164,7 @@ def detection_to_video(model, dataset, colors, show_bbox=False, early_stop=0, vi
     detection_list = []
     early_stop = early_stop
 
-    os.mkdir(r"./imgs")
+    os.mkdir("./imgs")
 
 	
     while success:
@@ -181,7 +181,7 @@ def detection_to_video(model, dataset, colors, show_bbox=False, early_stop=0, vi
 			# Create a plot made of frame+masks+bboxes
             display_instances(image, r['rois'], r['masks'], r['class_ids'], dataset.class_names, scores=r['scores'], colors=colors, show_bbox=show_bbox)
             # Save it on the HDD
-            plt.savefig(r"./imgs/image" + str(count), bbox_inches='tight')
+            plt.savefig("./imgs/image" + str(count), bbox_inches='tight')
             plt.close()
             
             count += 1
@@ -199,17 +199,17 @@ def detection_to_video(model, dataset, colors, show_bbox=False, early_stop=0, vi
 
     file_name = "detected_"+video_path
     
-    img = cv2.imread(r'./imgs/image0.png')
+    img = cv2.imread("./imgs/image0.png")
     height,width,layers=img.shape
     
     vwriter = cv2.VideoWriter(file_name, cv2.VideoWriter_fourcc(*'MJPG'), 15.0, (width, height))
     
     for i in range(img_range-1):
-        img = cv2.imread(r'image'+str(i)+'.png')
+        img = cv2.imread('image'+str(i)+'.png')
         vwriter.write(img)
 
     vwriter.release()
-    shutil.rmtree(r"./imgs")
+    #shutil.rmtree(r"./imgs")
 
     print("Saved to ", file_name)
 
@@ -239,7 +239,7 @@ DEVICE = "/gpu:0"  # /cpu:0 or /gpu:0
 # MODEL
 #---------------------------------------------------------------------
 # Create model in inference mode
-MODEL_DIR= r"./logs_VF"
+MODEL_DIR= "./logs_VF"
 
 with tf.device(DEVICE):
     model = modellib.MaskRCNN(mode="inference", model_dir=MODEL_DIR,
@@ -252,7 +252,7 @@ with tf.device(DEVICE):
 
 # LOAD CHKPT
 #----------------------------------------------------------------------------------
-weights_path = r"./logs_VF/mask_rcnn_visiope_0080.h5"
+weights_path = "./logs_VF/mask_rcnn_visiope_0080.h5"
 print("Model weights path: ", weights_path)
 model.load_weights(weights_path, by_name=True)
 
@@ -293,7 +293,7 @@ print(dataset_val.class_info)
 
 # VIDEO
 #---------------------------------------------------------------------
-video_path= r"v.mp4"
+video_path= "v.mp4"
 
 colors = random_colors(15+18, bright=True)
 
