@@ -104,12 +104,12 @@ def detect_and_color_splash(model, dataset, image_path=None, video_path=None):
             image = image[..., ::-1]
             # Detect objects
             r = model.detect([image], verbose=0)[0]
-			print("ROIS: %d" % len(r['rois']))
-			detection_list.append(r)
+            print("ROIS: %d" % len(r['rois']))
+            detection_list.append(r)
 			# Create a plot made of frame+masks+bboxes
             visualize.display_instances(image, r['rois'], r['masks'], r['scores'], dataset.class_names, ax = get_ax(1))
             # Save it on the HDD
-			plt.savefig("image" + str(count))
+            plt.savefig("image" + str(count))
             # Load it back as a numpy array
             numpy_frame = io.imread("image" + str(count))
             # RGB -> BGR to save image to video
@@ -120,7 +120,7 @@ def detect_and_color_splash(model, dataset, image_path=None, video_path=None):
           
     vwriter.release()
     print("Saved to ", file_name)
-	pickle.dump(detection_list, open(detection_name, 'wb'))
+    pickle.dump(detection_list, open(detection_name, 'wb'))
     
 
     
