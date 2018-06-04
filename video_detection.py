@@ -105,7 +105,7 @@ def detect_and_color_splash(model, dataset, video_path=None):
             print("ROIS: %d" % len(r['rois']))
             detection_list.append(r)
 			# Create a plot made of frame+masks+bboxes
-            visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'], dataset.class_names, scores=r['scores'], , ax = get_ax(1))
+            visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'], dataset.class_names, scores=r['scores'], ax = get_ax(1))
             # Save it on the HDD
             plt.savefig("image" + str(count))
             # Load it back as a numpy array
