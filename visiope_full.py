@@ -216,7 +216,7 @@ class VisiopeDataset(utils.Dataset):
         # All images or a subset?
         if class_ids:
             image_ids = []
-            coco_nimgs_per_class = int(len(self.train_images_ids)*0.15)
+            coco_nimgs_per_class = int(int(len(self.train_images_ids)*0.45)/len(class_ids))
             print("COCO N CLASSES: %d" % len(class_ids))
             print("COCO N IMAGES PER CLASS: %d" % coco_nimgs_per_class)
             print("COCO N TOTAL IMAGES: %d" % (len(class_ids)*coco_nimgs_per_class))
@@ -586,7 +586,6 @@ if __name__ == '__main__':
         selected_COCO_class_ids = [27,31,47,51,62,65,67,70,72,73,78,79,81,82,84,85,87,90]
 
 
-
         
         print("\n======TRAINING SET======")
         dataset_train = VisiopeDataset()
@@ -608,6 +607,12 @@ if __name__ == '__main__':
         dataset_train_distro = dataset_train.get_dataset_distribution()
         print("N train_classes: %d" % len(dataset_train_distro))
         pprint(dataset_train_distro)
+
+        # import matplotlib.pyplot as plt
+
+        # classes = list(dataset_train_distro.keys())
+        # freq = [v for v in dataset_train_distro.values()]
+        # plt.bar(classes, freq)
 
 
         print('')

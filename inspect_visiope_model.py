@@ -110,22 +110,25 @@ print("image ID: {}.{} ({}) {}".format(info["source"], info["id"], image_id,
 
 
 
+
+
+
 # CREATE SUBPLOTS
-ax = get_ax(1,4)
+ax = get_ax()
 
 
 
 
 # GROUND TRUTH
 #-----------------------------------------------------------------------------------
-visualize.display_instances(image, gt_bbox, gt_mask, gt_class_id, 
-                            dataset_train.class_names, ax=ax[0],
+ax = visualize.display_instances(image, gt_bbox, gt_mask, gt_class_id, 
+                            dataset_train.class_names, ax=ax,
                             title="Ground_Truth")
 
 
 
 
-'''
+
 # BASE
 #------------------------------------------------------------------------------------
 weights_path = "mask_rcnn_coco.h5"
@@ -139,11 +142,12 @@ print("ROIS: %d" % len(results[0]['rois']))
 
 # Display results
 r = results[0]
+print(r['masks'])
 visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'], 
                             dataset_train.class_names, r['scores'], ax=ax[1],
                             title="Predictions_base")
 
-'''
+plt.show()
 
 
 
@@ -165,7 +169,7 @@ visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'],
                             dataset_train.class_names, r['scores'], ax=ax[2],
                             title="Predictions_last")
 
-'''
+
 
 
 
@@ -190,3 +194,5 @@ visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'],
 
 
 plt.show()
+
+'''
