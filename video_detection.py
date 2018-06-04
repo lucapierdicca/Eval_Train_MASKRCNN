@@ -1,30 +1,13 @@
-import os
-import sys
 import random
-import math
-import re
-import time
 import numpy as np
 import tensorflow as tf
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
-
-from mrcnn import utils
-from mrcnn import visualize
-from mrcnn.visualize import display_instances
-import mrcnn.model as modellib
-from mrcnn.model import log
-
 import visiope_full
 import cv2
-
-
-import datetime
-import time
-import skimage.draw
-from skimage import io
 import pickle
+import colorsys
 
 
 
@@ -41,32 +24,17 @@ def get_ax(rows=1, cols=1, size=16):
 
 	
 	
-def color_splash(image, mask):
-    """Apply color splash effect.
-    image: RGB image [height, width, 3]
-    mask: instance segmentation mask [height, width, instance count]
-
-    Returns result image.
+def random_colors(N, bright=True):
     """
-    # Make a grayscale copy of the image. The grayscale copy still
-    # has 3 RGB channels, though.
-    gray = skimage.color.gray2rgb(skimage.color.rgb2gray(image)) * 255
-    
-    #print(type(gray))
-    # We're treating all instances as one, so collapse the mask into one layer
-    mask = (np.sum(mask, -1, keepdims=True) >= 1)
-    #print(mask.shape)
-    # Copy color pixels from the original color image where mask is set
-    
-    
-    if mask.shape[0] == gray.shape[0]:
-        splash = np.where(mask, image, gray).astype(np.uint8)
-    else:
-        mask = np.full((gray.shape[0], gray.shape[1], gray.shape[2]), False)
-        
-        splash = np.where(mask, image, gray).astype(np.uint8)
-            
-    return splash
+    Generate random colors.
+    To get visually distinct colors, generate them in HSV space then
+    convert to RGB.
+    """
+    brightness = 1.0 if bright else 0.7
+    hsv = [(i / N, 1, brightness) for i in range(N)]
+    colors = list(map(lambda c: colorsys.hsv_to_rgb(*c), hsv))
+    random.shuffle(colors)
+    return colors
 
 
 def display_instances(image, boxes, masks, class_ids, class_names,
