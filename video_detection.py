@@ -80,8 +80,8 @@ def detect_and_color_splash(model, dataset, image_path=None, video_path=None):
     width = int(vcapture.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(vcapture.get(cv2.CAP_PROP_FRAME_HEIGHT))
     fps = vcapture.get(cv2.CAP_PROP_FPS)
-    n_frames = int(vcapture.get(cv2.CAP_PROP_FRAME_COUNT))
-    print("Tot frames: %d" % n_frames)
+    #n_frames = int(vcapture.get(cv2.CAP_PROP_FRAME_COUNT))
+    #print("Tot frames: %d" % n_frames)
     
     # Define codec and create video writer
     file_name = "{:%Y%m%dT%H%M%S}.mp4".format(datetime.datetime.now())
@@ -95,7 +95,8 @@ def detect_and_color_splash(model, dataset, image_path=None, video_path=None):
     detection_list = []
 	
     while success:
-        print("frame: %d / %d" % (count, n_frames))
+        #print("frame: %d / %d" % (count, n_frames))
+        print("frame: ", count)
         # Read next image
         success, image = vcapture.read()
         print(success)
