@@ -70,9 +70,7 @@ def color_splash(image, mask):
 
 
 
-def detect_and_color_splash(model, dataset, image_path=None, video_path=None):
-    assert image_path or video_path
-
+def detect_and_color_splash(model, dataset, video_path=None):
         
     import cv2
     # Video capture
@@ -83,13 +81,12 @@ def detect_and_color_splash(model, dataset, image_path=None, video_path=None):
     n_frames = int(vcapture.get(cv2.CAP_PROP_FRAME_COUNT))
 
     print("Tot frames: %d" % n_frames)
+
     
     # Define codec and create video writer
     file_name = "{:%Y%m%dT%H%M%S}.mp4".format(datetime.datetime.now())
     detection_name = "{:%Y%m%dT%H%M%S}.pickle".format(datetime.datetime.now())
-    vwriter = cv2.VideoWriter(file_name,
-                              cv2.VideoWriter_fourcc(*'MJPG'),
-                              fps, (width, height))
+    vwriter = cv2.VideoWriter(file_name, cv2.VideoWriter_fourcc(*'MJPG'), fps, (width, height))
     
     count = 0
     success = True
@@ -202,7 +199,7 @@ print("N tot val images (val_visiope + val_COCO): %d\n" % len(dataset_val.image_
 
 # VIDEO
 #---------------------------------------------------------------------
-video_path= "/content/Train_Eval_MASKRCNN/v.mp4"
+video_path= "v.mp4"
 
-detect_and_color_splash(model, dataset_val, video_path)
+detect_and_color_splash(model, dataset_val, video_path=video_path)
 
