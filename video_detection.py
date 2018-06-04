@@ -9,6 +9,8 @@ import cv2
 import pickle
 import colorsys
 from mrcnn import model as modellib
+from skimage.measure import find_contours
+
 
 
 def get_ax(rows=1, cols=1, size=16):
@@ -123,6 +125,17 @@ def display_instances(image, boxes, masks, class_ids, class_names,
     ax.imshow(masked_image.astype(np.uint8))
     if auto_show:
         plt.show()
+
+def apply_mask(image, mask, color, alpha=0.5):
+    """Apply the given mask to the image.
+    """
+    for c in range(3):
+        image[:, :, c] = np.where(mask == 1,
+                                  image[:, :, c] *
+                                  (1 - alpha) + alpha * color[c] * 255,
+                                  image[:, :, c])
+    return image
+
 
 
 
