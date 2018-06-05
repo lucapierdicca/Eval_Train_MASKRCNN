@@ -216,7 +216,7 @@ class VisiopeDataset(utils.Dataset):
         # All images or a subset?
         if class_ids:
             image_ids = []
-            coco_nimgs_per_class = int(int(len(self.train_images_ids)*0.45)/len(class_ids))
+            coco_nimgs_per_class = int(int(len(self.train_images_ids)*0.55)/len(class_ids))
             print("COCO N CLASSES: %d" % len(class_ids))
             print("COCO N IMAGES PER CLASS: %d" % coco_nimgs_per_class)
             print("COCO N TOTAL IMAGES: %d" % (len(class_ids)*coco_nimgs_per_class))

@@ -83,7 +83,7 @@ def display_instances(image, boxes, masks, class_ids, class_names,
 
     masked_image = image.astype(np.uint32).copy()
     for i in range(N):
-        color = colors[class_ids[i]]
+        color = colors[class_ids[i]-1]
 
         print("%d:%s:(%f,%f,%f)" % (class_ids[i], class_names[class_ids[i]], color[0], color[1], color[2]))
 
@@ -204,7 +204,7 @@ def detection_to_video(model, dataset, colors, show_bbox=False, early_stop=0, vi
     img = cv2.imread("./imgs/image0.png")
     height,width,layers=img.shape
     
-    vwriter = cv2.VideoWriter(file_name, cv2.VideoWriter_fourcc(*'MJPG'), 15.0, (width, height))
+    vwriter = cv2.VideoWriter(file_name,cv2.VideoWriter_fourcc(*'mp4v'), 15.0, (width, height))
     
     for i in range(img_range-1):
         img = cv2.imread('./imgs/image'+str(i)+'.png')
