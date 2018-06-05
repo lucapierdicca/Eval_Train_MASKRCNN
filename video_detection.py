@@ -294,7 +294,7 @@ parser.add_argument('--model', required=True,
                     help="Path to weights .h5 file or 'coco'")
 
 
-
+args = parser.parse_args()
 
 
 
