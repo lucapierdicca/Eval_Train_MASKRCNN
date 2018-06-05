@@ -145,7 +145,7 @@ def apply_mask(image, mask, color, alpha=0.5):
 
 
 
-def detection_to_video(model, dataset, colors, show_bbox=False, early_stop=0, video_path=None):
+def detection_to_video(model, dataset, colors, show_bbox=False, early_stop=0, video_path=None, chkpt=0):
         
     import cv2
     # Video capture
@@ -159,7 +159,7 @@ def detection_to_video(model, dataset, colors, show_bbox=False, early_stop=0, vi
     video_path = video_path[:video_path.find('.')]
 
     
-    detection_list_name = "det_list_"+video_path+'.pickle'
+    detection_list_name = "det_list_"+video_path+chkpt+'.pickle'
     
     count = 0
     success = True
@@ -199,7 +199,7 @@ def detection_to_video(model, dataset, colors, show_bbox=False, early_stop=0, vi
     else:
         img_range = early_stop
 
-    file_name = "detected_"+video_path+'.mp4'
+    file_name = "detected_"+video_path+chkpt+'.mp4'
     
     img = cv2.imread("./imgs/image0.png")
     height,width,layers=img.shape
@@ -316,5 +316,5 @@ colors = random_colors(15+18, bright=True)
 
 print(colors)
 
-detection_to_video(model, dataset_val, colors, show_bbox=False, early_stop=50, video_path=args.video)
+detection_to_video(model, dataset_val, colors, show_bbox=False, early_stop=50, video_path=args.video, chkpt=args.model)
 
