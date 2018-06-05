@@ -156,8 +156,10 @@ def detection_to_video(model, dataset, colors, show_bbox=False, early_stop=0, vi
     n_frames = int(vcapture.get(cv2.CAP_PROP_FRAME_COUNT))
     print("Tot frames: %d" % n_frames)
 
+    video_path = video_path[:video_path.find('.')]
+
     
-    detection_list_name = "det_list_"+video_path
+    detection_list_name = "det_list_"+video_path+'.pickle'
     
     count = 0
     success = True
@@ -197,7 +199,7 @@ def detection_to_video(model, dataset, colors, show_bbox=False, early_stop=0, vi
     else:
         img_range = early_stop
 
-    file_name = "detected_"+video_path
+    file_name = "detected_"+video_path+'.mp4'
     
     img = cv2.imread("./imgs/image0.png")
     height,width,layers=img.shape
@@ -209,7 +211,7 @@ def detection_to_video(model, dataset, colors, show_bbox=False, early_stop=0, vi
         vwriter.write(img)
 
     vwriter.release()
-    shutil.rmtree(r"./imgs")
+    shutil.rmtree("./imgs")
 
     print("Saved to ", file_name)
 
