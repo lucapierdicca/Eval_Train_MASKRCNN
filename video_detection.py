@@ -286,7 +286,7 @@ import argparse
 # Parse command line arguments
 parser = argparse.ArgumentParser(
     description='Train Mask R-CNN on VISIOPE_FULL')
-parser.add_argument("--video" required=True,
+parser.add_argument("--video", required=True,
                     metavar="<command>",
                     help="'train' or 'evaluate' on MS COCO")
 parser.add_argument('--model', required=True,
