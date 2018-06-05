@@ -238,6 +238,7 @@ DEVICE = "/gpu:0"  # /cpu:0 or /gpu:0
 
 
 
+
 # MODEL
 #---------------------------------------------------------------------
 # Create model in inference mode
@@ -246,20 +247,6 @@ MODEL_DIR= "./logs_VF"
 with tf.device(DEVICE):
     model = modellib.MaskRCNN(mode="inference", model_dir=MODEL_DIR,
                               config=config)
-
-
-
-
-
-
-# LOAD CHKPT
-#----------------------------------------------------------------------------------
-weights_path = "./logs_VF/mask_rcnn_visiope_0080.h5"
-print("Model weights path: ", weights_path)
-model.load_weights(weights_path, by_name=True)
-
-
-
 
 
 
@@ -293,13 +280,41 @@ print(dataset_val.class_info)
 
 
 
+
+import argparse
+
+# Parse command line arguments
+parser = argparse.ArgumentParser(
+    description='Train Mask R-CNN on VISIOPE_FULL')
+parser.add_argument("--video" required=True,
+                    metavar="<command>",
+                    help="'train' or 'evaluate' on MS COCO")
+parser.add_argument('--model', required=True,
+                    metavar="/path/to/weights.h5",
+                    help="Path to weights .h5 file or 'coco'")
+
+
+
+
+
+
+# LOAD CHKPT
+#----------------------------------------------------------------------------------
+weights_path = "./logs_VF/mask_rcnn_visiope_00"+args.model+".h5"
+print("Model weights path: ", weights_path)
+model.load_weights(weights_path, by_name=True)
+
+
+
+
+
 # VIDEO
 #---------------------------------------------------------------------
-video_path= "v.mp4"
+#video_path= "v.mp4"
 
 colors = random_colors(15+18, bright=True)
 
 print(colors)
 
-detection_to_video(model, dataset_val, colors, show_bbox=False, early_stop=50, video_path=video_path)
+detection_to_video(model, dataset_val, colors, show_bbox=False, early_stop=50, video_path=args.video)
 
