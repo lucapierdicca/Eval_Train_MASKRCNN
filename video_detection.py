@@ -316,5 +316,5 @@ colors = random_colors(15+18, bright=True)
 
 print(colors)
 
-detection_to_video(model, dataset_val, colors, show_bbox=False, early_stop=50, video_path=args.video, chkpt=args.model)
+detection_to_video(model, dataset_val, colors, show_bbox=False, early_stop=0, video_path=args.video, chkpt=args.model)
 
