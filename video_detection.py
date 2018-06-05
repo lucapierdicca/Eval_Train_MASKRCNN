@@ -1,24 +1,13 @@
-import random
-import numpy as np
-import tensorflow as tf
-import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-import visiope_full
 import cv2
-import pickle
-import colorsys
+import tensorflow as tf
 from mrcnn import model as modellib
-from skimage.measure import find_contours
-from matplotlib import patches,  lines
-import os
-import shutil
+
 
 
 
 def detection_to_video(model, show_bbox=False, early_stop=0, video_path=None, chkpt=0):
         
-    import cv2
+
     # Video capture
     vcapture = cv2.VideoCapture(video_path)
     width = int(vcapture.get(cv2.CAP_PROP_FRAME_WIDTH))
