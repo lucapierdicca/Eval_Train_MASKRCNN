@@ -108,17 +108,35 @@ class VisiopeDataset(utils.Dataset):
         self.path = VISIOPE_PNG_IMAGES_PATH  ##TODO: add the path to the dataset folder
         self.jsonName = VISIOPE_JSON_PATH  ##TODO: add json file name
         
+
+
+        b_mod = []
         
         b = json.load(open(self.jsonName))
-        #b = [img for img in b if 'Masks' in img and 'image_problems' not in img['Label']]
         self.b = list(b)
+
+        is_in = set()
+
+        for index,i in enumerate(self.b):
+            current_img_labels = set(list({lbl:len(val) if lbl != 'Straight razor' else 1 for lbl,val in i['Label'].items()}.keys()))
+
+            union = is_in.union(current_img_labels)
+            if len(union) != len(is_in):
+                is_in = is_in.union(current_img_labels)
+                #print(is_in)
+                #print(index)
+                i['orig']=index
+                b_mod.append(i)
+
+        self.b = list(b_mod)
+        
         
         all_images_ids = range(len(self.b))
 
         np.random.seed(0)
         train_images_ids = sorted(np.random.choice(len(self.b), 
                                                    replace=False, 
-                                                   size=int(len(self.b)*0.9)).tolist())
+                                                   size=int(len(self.b)*1)).tolist())
         val_images_ids = sorted(list(set(all_images_ids)-set(train_images_ids)))
 
         self.train_images_ids = train_images_ids
@@ -153,7 +171,7 @@ class VisiopeDataset(utils.Dataset):
         for i in image_ids:
             self.add_image("visiope", 
                             image_id=i, 
-                            path=VISIOPE_PNG_IMAGES_PATH+"/image"+str(i)+".jpeg", 
+                            path=VISIOPE_PNG_IMAGES_PATH+"/image"+str(self.b[i]['orig'])+".jpeg", 
                             labels={lbl:len(val) if lbl != 'Straight razor' else 1 for lbl,val in self.b[i]['Label'].items()}) #cerca add_image
         
         if return_coco:
@@ -216,14 +234,22 @@ class VisiopeDataset(utils.Dataset):
         # All images or a subset?
         if class_ids:
             image_ids = []
-            coco_nimgs_per_class = int(int(len(self.train_images_ids)*0.55)/len(class_ids))
+            coco_nimgs_per_class = 150
             print("COCO N CLASSES: %d" % len(class_ids))
             print("COCO N IMAGES PER CLASS: %d" % coco_nimgs_per_class)
-            print("COCO N TOTAL IMAGES: %d" % (len(class_ids)*coco_nimgs_per_class))
+
+            coco_nimgs_per_class_orig = coco_nimgs_per_class
+
+
             for id in class_ids:
+                if id != 90:
+                    coco_nimgs_per_class = 1
+                else:
+                    coco_nimgs_per_class = coco_nimgs_per_class_orig
                 image_ids.extend(list(coco.getImgIds(catIds=[id]))[:coco_nimgs_per_class])
             # Remove duplicates
             image_ids = list(set(image_ids))
+
 
         else:
             # All images
@@ -232,7 +258,7 @@ class VisiopeDataset(utils.Dataset):
         np.random.seed(0)
         indices_train_images_ids = sorted(np.random.choice(len(image_ids), 
                                                    replace=False, 
-                                                   size=int(len(image_ids)*0.9)).tolist())
+                                                   size=int(len(image_ids)*1)).tolist())
         train_images_ids = sorted([image_ids[i] for i in indices_train_images_ids])
         
         val_images_ids = sorted(list(set(image_ids)-set(train_images_ids))) 
@@ -304,15 +330,15 @@ class VisiopeDataset(utils.Dataset):
         #dato che ho diviso in (train & val) simple random sampling
         #il mapping indice_imgID salta e
         #sono costretto  prendere l'imgID interna all'(oggetto) dataset self
-        immNum = self.image_info[image_id]['id']
-        #immNum = image_id
+        #immNum = self.image_info[image_id]['id']
+        immNum = image_id
 
         if len(self.b[immNum]['Label']) == 1:
             for x in self.b[immNum]['Label'].keys():
                 name = x
             nameApp = name
             #TODO forse bisgna aggiungere uno 0 alla fine in questa stringa sotto
-            name = path + "/image" + str(immNum) + name + '0' + ".bmp"
+            name = path + "/image" + str(self.b[immNum]['orig']) + name + '0' + ".bmp"
             aux = self.bmpToBinary(name)
             ret1.append(aux)
             ret2.append(classes.index(nameApp))
@@ -320,7 +346,7 @@ class VisiopeDataset(utils.Dataset):
             for x in self.b[immNum]['Label'].keys():
                 name = x
                 nameApp = name
-                name = path + "/image" + str(immNum) + name + str(labels[classes.index(name)]) + ".bmp"
+                name = path + "/image" + str(self.b[immNum]['orig']) + name + str(labels[classes.index(name)]) + ".bmp"
                 labels[classes.index(x)] += 1
                 aux = self.bmpToBinary(name)
                 ret1.append(aux)
@@ -597,7 +623,7 @@ if __name__ == '__main__':
 
         dataset_train.load_coco(sampling="train", class_ids=selected_COCO_class_ids)
         n_train_COCO_imgs = len(dataset_train.image_info)-n_train_visiope_imgs
-        print("N train_COCO images: %d" % n_train_COCO_imgs)
+        print("N train_COCO images (no duplicates): %d" % n_train_COCO_imgs)
 
         dataset_train.prepare()
         print("N tot train images (train_visiope + train_COCO): %d\n" % len(dataset_train.image_info))
@@ -606,11 +632,8 @@ if __name__ == '__main__':
         print("N train_classes: %d" % len(dataset_train_distro))
         pprint(dataset_train_distro)
 
-        # import matplotlib.pyplot as plt
-
-        # classes = list(dataset_train_distro.keys())
-        # freq = [v for v in dataset_train_distro.values()]
-        # plt.bar(classes, freq)
+        print(dataset_train.class_names)
+        print(dataset_train.class_info)
 
 
         print('')
@@ -620,16 +643,16 @@ if __name__ == '__main__':
         print("\n======VALIDATION SET======")
         dataset_val = VisiopeDataset()
 
-        dataset_val.load_visiope(sampling="val")
+        dataset_val.load_visiope(sampling="train")
         print("\nN tot_visiope images: %d" % len(dataset_val.b))
 
         n_val_visiope_imgs = len(dataset_val.image_info)
         print("N val_visiope images: %d" % n_val_visiope_imgs)
 
 
-        dataset_val.load_coco(sampling="val", class_ids=selected_COCO_class_ids)
+        dataset_val.load_coco(sampling="train", class_ids=selected_COCO_class_ids)
         n_val_COCO_imgs = len(dataset_val.image_info)-n_val_visiope_imgs
-        print("N val_COCO images: %d" % n_val_COCO_imgs)
+        print("N val_COCO images (no duplicates): %d" % n_val_COCO_imgs)
         
         dataset_val.prepare()
         print("N tot val images (val_visiope + val_COCO): %d\n" % len(dataset_val.image_info))
@@ -644,7 +667,7 @@ if __name__ == '__main__':
         # Right/Left flip 50% of the time
         augmentation = imgaug.augmenters.Fliplr(0.5)
 
-        '''
+        
         #*******************************************************************
         # *** This training schedule is an example. Update to your needs ***
         # Training - Stage 1
@@ -680,4 +703,3 @@ if __name__ == '__main__':
     else:
         print("'{}' is not recognized. "
               "Use 'train' or 'evaluate'".format(args.command))
-        '''
