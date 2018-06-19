@@ -97,7 +97,8 @@ def centreAnalisi(fig, h, w):
     maschere = r["masks"]
     numMask = 0
     try:
-        numMasks = maschere[0][0]
+        numMasks = len(maschere[0][0])
+        print(numMasks)
     except Exception as e:
         print(e)
         return 0
@@ -241,6 +242,7 @@ BMP_IMAGES_PATH = "./bmpImages_mod"
 JSON_PATH       = "labelbox_mod.json"
 
 FINETUNED_MODEL_PATH = DEFAULT_LOGS_DIR+'/'+'mask_rcnn_visiope_0080.h5'
+#FINETUNED_MODEL_PATH = 'mask_rcnn_coco.h5'
 
 
 
@@ -315,7 +317,7 @@ classes = {'Electric Razor':1,
             'Wash Basin':15
             }
 
-for json_elem in dataset_val.image_info:
+for json_elem in dataset_val.image_info[:1]:
     if b[json_elem['id']]['Label'] == 'Skip':
         continue
     # read image for sizes
@@ -364,7 +366,7 @@ for json_elem in dataset_val.image_info:
                         if idss_mask[indice_mask] == idss[indice]:
                             success += 1
     except Exception as e:
-        print('Exception: '+e)
+        print(e)
 
 
 print("Numero di successi: %d" % success)
