@@ -324,51 +324,51 @@ for json_elem in dataset_val.image_info[:1]:
     # read image for sizes
     img_path = json_elem['path']
     print(img_path)
-    
     try:
         im = Image.open(img_path)
-        w, h = im.size
-        seg = b[json_elem['id']]["Label"]
-        maskMat = []
-        idClassi = []
-
-        idss = []
-        centroidi_lista = []
-        aree = []
-        max_coord = []
-        for i in seg.keys():
-            name = str(i)
-            class_id = classes[name]
-
-            for j in range(len(seg[name])):
-                idClassi.append(classes.get(name))
-                x_coord = []
-                y_coord = []
-                for k in range(len(seg[name][j])):
-                    y_coord.append(seg[name][j][k]['y'])
-                    x_coord.append(seg[name][j][k]['x'])
-                coord = []
-                for ind in range(len(x_coord)):
-                    coord.append(x_coord[ind])
-                    coord.append(y_coord[ind])
-                immagine = coordToMatrix(coord, w, h)
-                centroidi_lista.append(find_centroid(immagine))
-                aree.append(compute_area(immagine))
-                idss.append(class_id)
-                max_coord.append(find_max_coord(x_coord, y_coord))
-
-
-        centroidi_lista_mask, idss_mask, aree_mask = centreAnalisi(np.array(im), w, h)
-        for indice in range(len(idds)):
-            total += 1
-            for indice_mask in range(len(idss_mask)):
-                if (aree[indice] *0.5)< aree_mask[indice_mask] and aree_mask[indice_mask] < (aree[indice] *1.5):
-                    if cade_internamente(max_coord[indice], centroidi_lista_mask[indice_mask]):
-                        if idss_mask[indice_mask] == idss[indice]:
-                            success += 1
     except Exception as e:
-        print('EEEEEEE')
         print(e)
+
+    w, h = im.size
+    seg = b[json_elem['id']]["Label"]
+    maskMat = []
+    idClassi = []
+
+    idss = []
+    centroidi_lista = []
+    aree = []
+    max_coord = []
+    for i in seg.keys():
+        name = str(i)
+        class_id = classes[name]
+
+        for j in range(len(seg[name])):
+            idClassi.append(classes.get(name))
+            x_coord = []
+            y_coord = []
+            for k in range(len(seg[name][j])):
+                y_coord.append(seg[name][j][k]['y'])
+                x_coord.append(seg[name][j][k]['x'])
+            coord = []
+            for ind in range(len(x_coord)):
+                coord.append(x_coord[ind])
+                coord.append(y_coord[ind])
+            immagine = coordToMatrix(coord, w, h)
+            centroidi_lista.append(find_centroid(immagine))
+            aree.append(compute_area(immagine))
+            idss.append(class_id)
+            max_coord.append(find_max_coord(x_coord, y_coord))
+
+
+    centroidi_lista_mask, idss_mask, aree_mask = centreAnalisi(np.array(im), w, h)
+    for indice in range(len(idds)):
+        total += 1
+        for indice_mask in range(len(idss_mask)):
+            if (aree[indice] *0.5)< aree_mask[indice_mask] and aree_mask[indice_mask] < (aree[indice] *1.5):
+                if cade_internamente(max_coord[indice], centroidi_lista_mask[indice_mask]):
+                    if idss_mask[indice_mask] == idss[indice]:
+                        success += 1
+
 
 
 print("Numero di successi: %d" % success)
