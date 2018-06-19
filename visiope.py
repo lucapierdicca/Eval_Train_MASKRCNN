@@ -162,11 +162,11 @@ class VisiopeDataset(utils.Dataset):
             self.add_class("visiope", i+1, classes[i]) #cerca add_class
 
         # Add images
-        img_ext = ".png"
-        if "mod" in JSON_PATH:
-            img_ext = ".jpeg"
         for i in image_ids:
-            self.add_image("visiope", image_id=i, path=dataset_dir + "/image" + str(i) + img_ext) #cerca add_image
+            self.add_image("visiope", 
+                            image_id=i, 
+                            path=VISIOPE_PNG_IMAGES_PATH+"/image"+str(i)+".jpeg", 
+                            labels={lbl:len(val) if lbl != 'Straight razor' else 1 for lbl,val in self.b[i]['Label'].items()}) 
         
 
         if return_coco:

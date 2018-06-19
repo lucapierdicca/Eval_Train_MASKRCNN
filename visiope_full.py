@@ -568,7 +568,10 @@ if __name__ == '__main__':
         print("Loading weights ", model_path)
         model.load_weights(model_path, by_name=True)
     else:
-        weights_path = args.model.lower()
+        model_path = args.model.lower()
+        print("Loading weights ", args.model.lower())
+        model.load_weights(model_path, by_name=True)
+
 
 
 
