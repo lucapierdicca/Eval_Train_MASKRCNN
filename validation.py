@@ -89,7 +89,7 @@ def find_person(fig):
         ret.append(np.count_nonzero(ids == i))
     return ids
 
-def centreAnalisi(fig, h, w):
+def centreAnalisi(fig, w, h):
 
     results = model.detect([fig], verbose=0)
     r = results[0]
@@ -100,7 +100,6 @@ def centreAnalisi(fig, h, w):
         numMasks = maschere[0][0]
     except Exception as e:
         print(e)
-        print("AAAAAA")
         return 0
 
     maskRet = []
