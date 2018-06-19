@@ -101,6 +101,7 @@ def centreAnalisi(fig, h, w):
         print(numMasks)
     except Exception as e:
         print(e)
+        print("AAAAAA")
         return 0
 
     maskRet = []
@@ -357,7 +358,7 @@ for json_elem in dataset_val.image_info[:1]:
                 max_coord.append(find_max_coord(x_coord, y_coord))
 
 
-        centroidi_lista_mask, idss_mask, aree_mask = centreAnalisi(np.asarray(im), w, h)
+        centroidi_lista_mask, idss_mask, aree_mask = centreAnalisi(np.array(im), w, h)
         for indice in range(len(idds)):
             total += 1
             for indice_mask in range(len(idss_mask)):
@@ -366,6 +367,7 @@ for json_elem in dataset_val.image_info[:1]:
                         if idss_mask[indice_mask] == idss[indice]:
                             success += 1
     except Exception as e:
+        print('EEEEEEE')
         print(e)
 
 
