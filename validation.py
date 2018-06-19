@@ -97,20 +97,19 @@ def centreAnalisi(fig, h, w):
     maschere = r["masks"]
     numMask = 0
     try:
-        numMasks = len(maschere[0][0])
-        print(numMasks)
+        numMasks = maschere[0][0]
     except Exception as e:
         print(e)
         print("AAAAAA")
         return 0
 
     maskRet = []
-    for i in range(numMasks):
+    for i in range(len(numMasks)):
         img = np.zeros([h, w], dtype=np.bool)
         maskRet.append(img)
     for r in range(len(maschere)):
-        for c in range(maschere[0]):
-            for h in range(maschere[0][0]):
+        for c in range(len(maschere[0])):
+            for h in range(len(maschere[0][0])):
                 if maschere[r][c][h]:
                     maskRet[h][r][c] = (255,255,255)
 
