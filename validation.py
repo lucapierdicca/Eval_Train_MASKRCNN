@@ -311,12 +311,16 @@ classes = {'Electric Razor':1,
             'Wash Basin':15
             }
 
-for json_elem in dataset_val.image_info:
+for index,json_elem in enumerate(dataset_val.image_info):
     if b[json_elem['id']]['Label'] == 'Skip':
         continue
     # read image for sizes
     img_path = json_elem['path']
+    
+    nimg = len(dataset_val.image_info)
     print(img_path)
+    print('%d/%d' % (index,nimg))
+    
     try:
         im = Image.open(img_path)
     except Exception as e:
