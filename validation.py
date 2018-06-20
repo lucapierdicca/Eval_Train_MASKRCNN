@@ -65,9 +65,9 @@ def find_max_coord(x, y):
     return [x_max, x_min, y_max, y_min]
 
 def cade_internamente(max, centroide):
-    if centroide[0]< max[0] and centroide[0] > max[1]:
-        if centroide[1]< max[2] and centroide[1] > max[3]:
-            return attributes
+    if centroide[0]< max[0] and centroide[0] > max[2]:
+        if centroide[1]< max[1] and centroide[1] > max[3]:
+            return True
     return False
 
 def get_ax(rows=1, cols=1, size=16):
