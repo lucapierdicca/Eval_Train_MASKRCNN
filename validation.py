@@ -355,7 +355,7 @@ for index,json_elem in enumerate(dataset_val.image_info[:1]):
 
 
             immagine = coordToMatrix(coord, w, h)
-            print(immagine)
+            print(np.array(immagine))
             centroidi_lista.append(find_centroid(immagine))
             aree.append(compute_area(immagine))
             idss.append(class_id)
