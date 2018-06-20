@@ -42,7 +42,7 @@ def find_max_coord(x,y,h):
     x_max = max(x)
     y_min = min(y)
     y_max = max(y)
-    return [x_max, h-y_max, x_min, h-y_min]
+    return [x_min, h-y_min, x_max, h-y_max]
 
 #returns the mask b&w img
 def coordToMatrix(coord, w, h):
@@ -282,7 +282,7 @@ classes = {'Electric Razor':1,
 success = 0
 total = 0
 
-for index,json_elem in enumerate(dataset_val.image_info[40:42]):
+for index,json_elem in enumerate(dataset_val.image_info[:20]):
     if b[json_elem['id']]['Label'] == 'Skip':
         continue
     # read image for sizes
