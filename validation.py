@@ -311,7 +311,7 @@ classes = {'Electric Razor':1,
             'Wash Basin':15
             }
 
-for json_elem in dataset_val.image_info[:1]:
+for json_elem in dataset_val.image_info:
     if b[json_elem['id']]['Label'] == 'Skip':
         continue
     # read image for sizes
@@ -355,7 +355,7 @@ for json_elem in dataset_val.image_info[:1]:
 
 
     centroidi_lista_mask, idss_mask, aree_mask = centreAnalisi(np.array(im), w, h)
-    print(centroidi_lista_mask, idss_mask, aree_mask)
+    #print(centroidi_lista_mask, idss_mask, aree_mask)
     for indice in range(len(idss)):
         total += 1
         for indice_mask in range(len(idss_mask)):
