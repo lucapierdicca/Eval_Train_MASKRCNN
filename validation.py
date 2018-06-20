@@ -100,6 +100,7 @@ def centreAnalisi(fig, w, h):
         numMasks = maschere.shape(2)
     except Exception as e:
         print(e)
+        print('EEEE')
         return 0
 
     maskRet = [np.zeros((h, w), dtype=(np.uint8,3)) for i in range(numMasks)]
@@ -320,6 +321,7 @@ for json_elem in dataset_val.image_info[:1]:
     try:
         im = Image.open(img_path)
     except Exception as e:
+        print('AAAA')
         print(e)
 
     w, h = im.size
