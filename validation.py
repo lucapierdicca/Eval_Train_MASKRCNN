@@ -291,8 +291,7 @@ pprint(dataset_val_distro)
 #------------------------------------------------------
 b = dataset_val.b
 
-success = 0
-total = 1
+
 
 classes = {'Electric Razor':1, 
             'Eye':2, 
@@ -310,7 +309,10 @@ classes = {'Electric Razor':1,
             'Tap':14, 
             'Wash Basin':15}
 
-for index,json_elem in enumerate(dataset_val.image_info[:1]):
+success = 0
+total = 0
+
+for index,json_elem in enumerate(dataset_val.image_info[:10]):
     if b[json_elem['id']]['Label'] == 'Skip':
         continue
     # read image for sizes
