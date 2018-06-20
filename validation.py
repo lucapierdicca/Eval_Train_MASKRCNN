@@ -8,26 +8,11 @@ from mrcnn import model as modellib, utils
 from mrcnn import visualize
 import cv2
 import skimage.io
-import matplotlib
-import matplotlib.pyplot as plt
-import os
-import sys
-import random
 
 
 
 
-def coordToMatrix(coord, w, h):
-    img_size = (w, h)
-    poly = Image.new("RGB", img_size)
-    pdraw = ImageDraw.Draw(poly)
-    pdraw.polygon(coord,
-                  fill=(255,255,255), outline=(255,255,255))
-    poly = poly.transpose(Image.FLIP_LEFT_RIGHT)
-    poly = poly.rotate(180)
-    #pix = np.array(poly.getdata()).reshape(w, h)
-    return poly
-
+#compute the centroid of the mask [x,y]
 def find_centroid(im):
     width, height = im.size
     XX, YY, count = 0, 0, 0
@@ -39,6 +24,8 @@ def find_centroid(im):
                 count += 1
     return XX/count, YY/count
 
+
+#compute the area that is just a count of the mask's white pixels
 def compute_area(im):
     width, height = im.size
     area = 0
@@ -48,49 +35,38 @@ def compute_area(im):
                 area += 1
     return area
 
-def find_max_coord(x, y):
-    x_max = 0
-    x_min = 10000000
-    y_max = 0
-    y_min = 10000000
-    for indice in range(len(x)):
-        if x[indice] < x_min:
-            x_min = x[indice]
-        if y[indice] < y_min:
-            y_min = y[indice]
-        if x[indice] > x_max:
-            x_max = x[indice]
-        if y[indice] > x_max:
-            x_max = y[indice]
-    return [x_max, x_min, y_max, y_min]
 
+#compute the bounding box coordinates [x1,y1,x2,y2] (it's a rectangle!)
+def find_max_coord(x,y,h):
+    x_min = min(x)
+    x_max = max(x)
+    y_min = min(y)
+    y_max = max(y)
+    return [x_max, h-y_max, x_min, h-y_min]
+
+#returns the mask b&w img
+def coordToMatrix(coord, w, h):
+    img_size = (w, h)
+    poly = Image.new("RGB", img_size)
+    pdraw = ImageDraw.Draw(poly)
+    pdraw.polygon(coord,
+                  fill=(255,255,255), outline=(255,255,255))
+    poly = poly.transpose(Image.FLIP_LEFT_RIGHT)
+    poly = poly.rotate(180)
+    #poly.show()
+    #pix = np.array(poly.getdata()).reshape(w, h)
+    return poly
+
+#check if the centroid is wisin the bounding box
 def cade_internamente(max, centroide):
     if centroide[0]< max[0] and centroide[0] > max[2]:
         if centroide[1]< max[1] and centroide[1] > max[3]:
             return True
     return False
 
-def get_ax(rows=1, cols=1, size=16):
-    _, ax = plt.subplots(rows, cols, figsize=(size*cols, size*rows))
-    return ax
 
-def find_person(fig):
-    indexList = [0,1,2,3,4,5,6,7,8]
-    results = model.detect([fig], verbose=0)
-    r = results[0]
-    ax = get_ax(1)
-    r = results[0]
-    # ['BG', 'screwdriver', 'belt', 'guard', 'mesh', 'spanner', 'boh1', 'boh2'], r['scores']
-    visualize.display_instances(fig, r['rois'], r['masks'], r['class_ids'], class_names , r['scores'], ax=ax, title="Predictions")
-
-    ids = r['class_ids']
-    ret = []
-    for i in indexList:
-        ret.append(np.count_nonzero(ids == i))
-    return ids
 
 def centreAnalisi(fig, w, h):
-
     results = model.detect([fig], verbose=0)
     r = results[0]
     ids = r['class_ids']
@@ -121,12 +97,6 @@ def centreAnalisi(fig, w, h):
         centroidi_ret.append(ret)
     return centroidi_ret, ids, aree
 
-def test():
-    file_names = next(os.walk(IMAGE_DIR))[2]
-    for f in file_names:
-        image = skimage.io.imread(os.path.join(IMAGE_DIR, f))
-        number = find_person(image)
-        print(number)
 
 class VisiopeDataset(utils.Dataset):
 
@@ -312,7 +282,7 @@ classes = {'Electric Razor':1,
 success = 0
 total = 0
 
-for index,json_elem in enumerate(dataset_val.image_info):
+for index,json_elem in enumerate(dataset_val.image_info[40:42]):
     if b[json_elem['id']]['Label'] == 'Skip':
         continue
     # read image for sizes
@@ -357,11 +327,15 @@ for index,json_elem in enumerate(dataset_val.image_info):
 
 
             immagine = coordToMatrix(coord, w, h)
-            #print(np.array(immagine))
             centroidi_lista.append(find_centroid(immagine))
             aree.append(compute_area(immagine))
             idss.append(class_id)
-            max_coord.append(find_max_coord(x_coord, y_coord))
+            max_coord.append(find_max_coord(x_coord, y_coord, h))
+
+            '''pdraw = ImageDraw.Draw(immagine)
+            pdraw.point([find_centroid(immagine)], fill=(255,0,0))
+            pdraw.rectangle(find_max_coord(x_coord, y_coord, h), outline=(255,0,0))
+            immagine.show()'''
 
     
     centroidi_lista_mask, idss_mask, aree_mask = centreAnalisi(np.array(im), w, h)
