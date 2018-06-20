@@ -355,7 +355,8 @@ for json_elem in dataset_val.image_info[:1]:
 
 
     centroidi_lista_mask, idss_mask, aree_mask = centreAnalisi(np.array(im), w, h)
-    for indice in range(len(idds)):
+    print(centroidi_lista_mask, idss_mask, aree_mask)
+    for indice in range(len(idss)):
         total += 1
         for indice_mask in range(len(idss_mask)):
             if (aree[indice] *0.5)< aree_mask[indice_mask] and aree_mask[indice_mask] < (aree[indice] *1.5):
