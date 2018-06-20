@@ -58,9 +58,9 @@ def coordToMatrix(coord, w, h):
     return poly
 
 #check if the centroid is wisin the bounding box
-def cade_internamente(max, centroide):
-    if centroide[0]< max[0] and centroide[0] > max[2]:
-        if centroide[1]< max[1] and centroide[1] > max[3]:
+def cade_internamente(bbox_coord, centroide):
+    if centroide[0]>bbox_coord[0] and centroide[0]<bbox_coord[2]:
+        if centroide[1]>bbox_coord[1] and centroide[1]<bbox_coord[3]:
             return True
     return False
 
