@@ -282,7 +282,7 @@ classes = {'Electric Razor':1,
 success = 0
 total = 0
 
-for index,json_elem in enumerate(dataset_val.image_info):
+for index,json_elem in enumerate(dataset_val.image_info[:20]):
     if b[json_elem['id']]['Label'] == 'Skip':
         continue
     # read image for sizes
