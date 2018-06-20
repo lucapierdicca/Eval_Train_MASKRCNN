@@ -92,7 +92,7 @@ STAGE_3_EPOCHS = 4#160
 
 class VisiopeDataset(utils.Dataset):
 
-    def load_visiope(self, dataset_dir, subset, class_ids=None,class_map=None, return_coco=False):
+    def load_visiope(self, sampling, return_coco=False):
         """Load a subset of the COCO dataset.
         dataset_dir: The root directory of the COCO dataset.
         subset: What to load (train, val, minival, valminusminival)
@@ -133,12 +133,12 @@ class VisiopeDataset(utils.Dataset):
 
 
 
-        assert subset in ["train", "val"]
+        assert sampling in ["train", "val"]
 
         classes = []
         image_ids = []  # riempire con gli id di tutte le immagini non skippate
 
-        if subset == 'train':
+        if sampling == 'train':
             selected_subset = train_images_ids
         else:
             selected_subset = val_images_ids
@@ -165,7 +165,7 @@ class VisiopeDataset(utils.Dataset):
         for i in image_ids:
             self.add_image("visiope", 
                             image_id=i, 
-                            path=VISIOPE_PNG_IMAGES_PATH+"/image"+str(i)+".jpeg", 
+                            path=PNG_IMAGES_PATH+"/image"+str(i)+".jpeg", 
                             labels={lbl:len(val) if lbl != 'Straight razor' else 1 for lbl,val in self.b[i]['Label'].items()}) 
         
 

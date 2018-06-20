@@ -45,6 +45,7 @@ class InferenceConfig(config.__class__):
     # Run detection on one image at a time
     GPU_COUNT = 1
     IMAGES_PER_GPU = 1
+    DETECTION_MIN_COFIDENCE=0.8
 
 config = InferenceConfig()
 #config.display()
@@ -67,7 +68,7 @@ DEVICE = "/cpu:0"  # /cpu:0 or /gpu:0 #OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
 
  # Load validation dataset
 dataset_train = visiope.VisiopeDataset()
-dataset_train.load_visiope(r"./pngImages_mod", "val")
+dataset_train.load_visiope(sampling="val")
 
 # Must call before using the dataset
 dataset_train.prepare()
@@ -83,7 +84,7 @@ print("Images: {}\nClasses: {}".format(len(dataset_train.image_ids), dataset_tra
 # MODEL
 #---------------------------------------------------------------------
 # Create model in inference mode
-MODEL_DIR="./logs_V"
+MODEL_DIR="./logs_VF"
 with tf.device(DEVICE):
     model = modellib.MaskRCNN(mode="inference", model_dir=MODEL_DIR,
                               config=config)
@@ -138,6 +139,9 @@ print("Model weights path: ", weights_path)
 # Run object detection
 results = model.detect([image], verbose=0)
 
+
+
+
 print("ROIS: %d" % len(results[0]['rois']))
 
 # Display results
@@ -149,6 +153,8 @@ visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'],
 
 plt.show()
 
+import pickle
+pickle.dump(r, open('reults.pickle','wb'))
 
 
 '''
