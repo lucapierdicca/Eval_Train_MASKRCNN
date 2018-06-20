@@ -116,9 +116,8 @@ def centreAnalisi(fig, w, h):
     aree = []
     for i in range(len(maskRet)):
         image = Image.fromarray(maskRet[i], 'RGB')
-        ww, hh = image.size
         aree.append(compute_area(image))
-        ret = find_centroid(image, ww, hh)
+        ret = find_centroid(image)
         centroidi_ret.append(ret)
     return centroidi_ret, ids, aree
 
