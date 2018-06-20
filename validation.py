@@ -311,7 +311,7 @@ classes = {'Electric Razor':1,
             'Wash Basin':15
             }
 
-for index,json_elem in enumerate(dataset_val.image_info)[:1]:
+for index,json_elem in enumerate(dataset_val.image_info[:1]):
     if b[json_elem['id']]['Label'] == 'Skip':
         continue
     # read image for sizes
@@ -353,7 +353,8 @@ for index,json_elem in enumerate(dataset_val.image_info)[:1]:
                 coord.append(x_coord[ind])
                 coord.append(y_coord[ind])
             print(coord)
-            
+
+
             immagine = coordToMatrix(coord, w, h)
             centroidi_lista.append(find_centroid(immagine))
             aree.append(compute_area(immagine))
