@@ -97,7 +97,7 @@ def centreAnalisi(fig, w, h):
     maschere = r["masks"]
     numMasks = 0
     try:
-        numMasks = maschere.shape(2)
+        numMasks = maschere.shape[2]
     except Exception as e:
         print(e)
         print('EEEE')
