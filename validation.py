@@ -308,8 +308,7 @@ classes = {'Electric Razor':1,
             'Soapy hands':12, 
             'Straight Razor':13, 
             'Tap':14, 
-            'Wash Basin':15
-            }
+            'Wash Basin':15}
 
 for index,json_elem in enumerate(dataset_val.image_info[:1]):
     if b[json_elem['id']]['Label'] == 'Skip':
@@ -319,7 +318,7 @@ for index,json_elem in enumerate(dataset_val.image_info[:1]):
     
     nimg = len(dataset_val.image_info)
     print(img_path)
-    print('%d/%d' % (index,nimg))
+    print('%d/%d' % (index+1,nimg))
     
     try:
         im = Image.open(img_path)
@@ -356,6 +355,7 @@ for index,json_elem in enumerate(dataset_val.image_info[:1]):
 
 
             immagine = coordToMatrix(coord, w, h)
+            print(immagine)
             centroidi_lista.append(find_centroid(immagine))
             aree.append(compute_area(immagine))
             idss.append(class_id)
@@ -363,7 +363,7 @@ for index,json_elem in enumerate(dataset_val.image_info[:1]):
 
 
     centroidi_lista_mask, idss_mask, aree_mask = centreAnalisi(np.array(im), w, h)
-    #print(centroidi_lista_mask, idss_mask, aree_mask)
+    print(centroidi_lista_mask, idss_mask, aree_mask)
     for indice in range(len(idss)):
         total += 1
         for indice_mask in range(len(idss_mask)):
