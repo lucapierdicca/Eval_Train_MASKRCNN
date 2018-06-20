@@ -361,8 +361,9 @@ for index,json_elem in enumerate(dataset_val.image_info[:1]):
             idss.append(class_id)
             max_coord.append(find_max_coord(x_coord, y_coord))
 
-
+    
     centroidi_lista_mask, idss_mask, aree_mask = centreAnalisi(np.array(im), w, h)
+    print(centroidi_lista, idss, aree)
     print(centroidi_lista_mask, idss_mask, aree_mask)
     for indice in range(len(idss)):
         total += 1
@@ -371,7 +372,7 @@ for index,json_elem in enumerate(dataset_val.image_info[:1]):
                 if cade_internamente(max_coord[indice], centroidi_lista_mask[indice_mask]):
                     if idss_mask[indice_mask] == idss[indice]:
                         success += 1
-
+    
 
 
 print("Numero di successi: %d" % success)
