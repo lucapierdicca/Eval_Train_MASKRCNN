@@ -312,7 +312,7 @@ classes = {'Electric Razor':1,
 success = 0
 total = 0
 
-for index,json_elem in enumerate(dataset_val.image_info[:10]):
+for index,json_elem in enumerate(dataset_val.image_info):
     if b[json_elem['id']]['Label'] == 'Skip':
         continue
     # read image for sizes
@@ -330,7 +330,7 @@ for index,json_elem in enumerate(dataset_val.image_info[:10]):
 
     w, h = im.size
     seg = b[json_elem['id']]["Label"]
-    print(seg)
+    #print(seg)
     maskMat = []
     idClassi = []
 
@@ -365,17 +365,17 @@ for index,json_elem in enumerate(dataset_val.image_info[:10]):
 
     
     centroidi_lista_mask, idss_mask, aree_mask = centreAnalisi(np.array(im), w, h)
-    print(centroidi_lista, idss, aree)
-    print(centroidi_lista_mask, idss_mask, aree_mask)
+    #print(centroidi_lista, idss, aree)
+    #print(centroidi_lista_mask, idss_mask, aree_mask)
     for indice in range(len(idss)):
         total += 1
         for indice_mask in range(len(idss_mask)):
             if (aree[indice] *0.5)< aree_mask[indice_mask] and aree_mask[indice_mask] < (aree[indice] *1.5):
-                print(1)
+                #print(1)
                 if cade_internamente(max_coord[indice], centroidi_lista_mask[indice_mask]):
-                    print(2)
+                    #print(2)
                     if idss_mask[indice_mask] == idss[indice]:
-                        print(3)
+                        #print(3)
                         success += 1
     
 
