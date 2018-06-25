@@ -71,7 +71,7 @@ def centreAnalisi(fig, w, h):
     r = results[0]
     ids = r['class_ids']
     maschere = r["masks"]
-    print(maschere)
+    #print(maschere)
     numMasks = 0
     try:
         numMasks = maschere.shape[2]
