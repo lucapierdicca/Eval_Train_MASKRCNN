@@ -50,7 +50,7 @@ VISIOPE_BMP_MASKS_PATH = "./bmpImages_mod"
 VISIOPE_JSON_PATH = "labelbox_mod.json"
 
 
-COCO_IMAGES_PATH = "/home/edoardo/Downloads"
+COCO_IMAGES_PATH = "."
 COCO_SUBSET = "train"
 COCO_YEAR = "2017"
 
