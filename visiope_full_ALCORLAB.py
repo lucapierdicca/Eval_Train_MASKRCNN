@@ -657,7 +657,7 @@ if __name__ == '__main__':
         # Right/Left flip 50% of the time
         augmentation = imgaug.augmenters.Fliplr(0.5)
 
-
+        '''
         #*******************************************************************
         # *** This training schedule is an example. Update to your needs ***
 
@@ -687,6 +687,7 @@ if __name__ == '__main__':
                     layers='all',
                     augmentation=augmentation)
         print('AAAAAAAAAAAAAAAAAAAAAAAa')
+    '''
 
     elif args.command == "evaluate":
         # Validation dataset
@@ -698,3 +699,4 @@ if __name__ == '__main__':
     else:
         print("'{}' is not recognized. "
               "Use 'train' or 'evaluate'".format(args.command))
+    
