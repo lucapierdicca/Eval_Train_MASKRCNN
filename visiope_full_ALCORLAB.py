@@ -51,7 +51,7 @@ VISIOPE_JSON_PATH = "labelbox_mod.json"
 
 
 COCO_IMAGES_PATH = "."
-COCO_SUBSET = "val"
+COCO_SUBSET = "train"
 COCO_YEAR = "2017"
 
 COCO_MODEL_PATH = "mask_rcnn_coco.h5"
