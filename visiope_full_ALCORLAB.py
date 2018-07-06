@@ -70,7 +70,7 @@ class VisiopeConfig(Config):
 
     # We use a GPU with 12GB memory, which can fit two images.
     # Adjust down if you use a smaller GPU.
-    IMAGES_PER_GPU = 1  ##TODO: your pc or alcorlab's pc
+    IMAGES_PER_GPU = 2  ##TODO: your pc or alcorlab's pc
 
     # Uncomment to train on 8 GPUs (default is 1)
     # GPU_COUNT = 8
@@ -78,12 +78,12 @@ class VisiopeConfig(Config):
     # Number of classes (including background)
     NUM_CLASSES = 1 + 15 + 18 ###TODO your assignment
 
-    STEPS_PER_EPOCH = 1200
+    STEPS_PER_EPOCH = 1000
 
 
 STAGE_1_EPOCHS = 40#40
-STAGE_2_EPOCHS = 63#120
-STAGE_3_EPOCHS = 80#160
+STAGE_2_EPOCHS = 70#120
+STAGE_3_EPOCHS = 90#160
 
 
 ############################################################
