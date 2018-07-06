@@ -51,7 +51,7 @@ VISIOPE_JSON_PATH = "labelbox_mod.json"
 
 
 COCO_IMAGES_PATH = "."
-COCO_SUBSET = "train"
+COCO_SUBSET = "val"
 COCO_YEAR = "2017"
 
 COCO_MODEL_PATH = "mask_rcnn_coco.h5"
@@ -219,28 +219,57 @@ class VisiopeDataset(utils.Dataset):
         # All images or a subset?
         if class_ids:
             image_ids = []
-            coco_nimgs_per_class = int(len(self.train_images_ids)*0.55)
-            coco_nimgs_per_class = int(coco_nimgs_per_class/18)
+            coco_nimgs_per_class = int(len(self.train_images_ids)*0.55/18)
             aux = coco_nimgs_per_class
 
             print("COCO N CLASSES: %d" % len(class_ids))
             print("COCO N IMAGES PER CLASS: %d" % coco_nimgs_per_class)
             print("COCO N TOTAL IMAGES: %d" % (len(class_ids)*coco_nimgs_per_class))
-            error_list = [84,51,62]
+            
+            error_list = []#[51,62,84] # bowl - chair - book
+            imgid_to_catgs = {}
+            
             for id in class_ids:
+                
                 random_list = []
-                while len(random_list)<20:
-                    start = random.randint(0, len(list(coco.getImgIds(catIds=[id])))-1)
-                    if start not in random_list:
-                        random_list.append(start)
+
                 if id in error_list:
                     coco_nimgs_per_class = 1
+
+                current_len = len(list(coco.getImgIds(catIds=[id])))-1
+                if current_len < coco_nimgs_per_class:
+                    coco_nimgs_per_class = current_len
+                
+                while len(random_list)<coco_nimgs_per_class:
+                    start = random.randint(0, current_len)
+                    if start not in random_list:
+                        random_list.append(start)
+
                 for i in random_list:
                     d = [list(coco.getImgIds(catIds=[id]))[i]]
+                    
+                    if d[0] not in imgid_to_catgs:
+                        imgid_to_catgs[d[0]] = [id]
+                    else:
+                        imgid_to_catgs[d[0]].append(id)
+
                     image_ids.extend(d)
+
                 coco_nimgs_per_class = aux
+            
+            '''print('\n')
+            image_ids_original = list(image_ids)
+            print('Original', len(image_ids_original))
             # Remove duplicates
             image_ids = list(set(image_ids))
+            print('No duplicates', len(image_ids))
+
+            from pprint import pprint
+            print('')
+            print(len(list(imgid_to_catgs.keys())))
+            pprint(imgid_to_catgs)'''
+
+
 
         else:
             # All images
@@ -271,7 +300,9 @@ class VisiopeDataset(utils.Dataset):
                 width=coco.imgs[i]["width"],
                 height=coco.imgs[i]["height"],
                 annotations=coco.loadAnns(coco.getAnnIds(
-                    imgIds=[i], catIds=class_ids, iscrowd=None)))
+                    imgIds=[i], catIds=imgid_to_catgs[i], iscrowd=None)))
+
+
         if return_coco:
             return coco
 
