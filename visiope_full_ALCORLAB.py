@@ -219,22 +219,24 @@ class VisiopeDataset(utils.Dataset):
         # All images or a subset?
         if class_ids:
             image_ids = []
-            coco_nimgs_per_class = int(len(self.train_images_ids)*0.55/18)+100
+            coco_nimgs_per_class = int(len(self.train_images_ids)*0.55/18)+90
             aux = coco_nimgs_per_class
 
             print("COCO N CLASSES: %d" % len(class_ids))
             print("COCO N IMAGES PER CLASS: %d" % coco_nimgs_per_class)
             print("COCO N TOTAL IMAGES: %d" % (len(class_ids)*coco_nimgs_per_class))
             
-            error_list = []#[51,62,84] # bowl - chair - book
+            error_list = [47,51,62,84] # cup - bowl - chair - book
             imgid_to_catgs = {}
             
             for id in class_ids:
                 
                 random_list = []
 
-                if id in error_list:
-                    coco_nimgs_per_class = 1
+                if id in [47,51,62]:
+                    coco_nimgs_per_class = 100
+                if id in [84]:
+                    coco_nimgs_per_class = 50
 
                 current_len = len(list(coco.getImgIds(catIds=[id])))-1
                 if current_len < coco_nimgs_per_class:
