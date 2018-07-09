@@ -280,7 +280,7 @@ for i in range(img_range):
 
 
 
-f = open('pro.txt', 'a')
+f = open('graph_video_data.txt', 'a')
 for i in a:
     we = ",".join(str(j) for j in i)
     print(we)
