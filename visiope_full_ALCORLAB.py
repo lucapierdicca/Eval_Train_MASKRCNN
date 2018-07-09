@@ -51,7 +51,7 @@ VISIOPE_JSON_PATH = "labelbox_mod.json"
 
 
 COCO_IMAGES_PATH = "."
-COCO_SUBSET = "train"
+COCO_SUBSET = "val"
 COCO_YEAR = "2017"
 
 COCO_MODEL_PATH = "mask_rcnn_coco.h5"
@@ -154,7 +154,7 @@ class VisiopeDataset(utils.Dataset):
             self.add_image("visiope",
                             image_id=i,
                             path=VISIOPE_PNG_IMAGES_PATH+"/image"+str(i)+".jpeg",
-                            labels={lbl:len(val) if lbl != 'Straight razor' else 1 for lbl,val in self.b[i]['Label'].items()}) #cerca add_image
+                            labels={lbl:len(val) if lbl != 'Straight razor' else 1 for lbl,val in self.b[i]['Label'].items()}) 
 
         if return_coco:
             return self.b
@@ -239,6 +239,7 @@ class VisiopeDataset(utils.Dataset):
                     coco_nimgs_per_class = 50
 
                 current_len = len(list(coco.getImgIds(catIds=[id])))-1
+
                 if current_len < coco_nimgs_per_class:
                     coco_nimgs_per_class = current_len
                 
@@ -246,6 +247,11 @@ class VisiopeDataset(utils.Dataset):
                     start = random.randint(0, current_len)
                     if start not in random_list:
                         random_list.append(start)
+
+                '''np.random.seed(0)
+                random_list = np.random.choice(len(list(coco.getImgIds(catIds=[id]))),
+                                     replace=False,
+                                     size=coco_nimgs_per_class).tolist()'''
 
                 for i in random_list:
                     d = [list(coco.getImgIds(catIds=[id]))[i]]
@@ -691,7 +697,7 @@ if __name__ == '__main__':
         augmentation = imgaug.augmenters.Fliplr(0.5)
 
         
-        #*******************************************************************
+        '''#*******************************************************************
         # *** This training schedule is an example. Update to your needs ***
 
         # Training - Stage 1
@@ -719,7 +725,7 @@ if __name__ == '__main__':
                     epochs=STAGE_3_EPOCHS,
                     layers='all',
                     augmentation=augmentation)
-        print('AAAAAAAAAAAAAAAAAAAAAAAa')
+        print('AAAAAAAAAAAAAAAAAAAAAAAa')'''
     
 
     elif args.command == "evaluate":
