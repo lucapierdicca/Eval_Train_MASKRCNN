@@ -1,4 +1,4 @@
-import visiope_full
+import visiope_full_ALCORLAB
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -53,7 +53,7 @@ def display_instances(image, boxes, masks, class_ids, class_names,
     scores: (optional) confidence scores for each box
     title: (optional) Figure title
     show_mask, show_bbox: To show masks and bounding boxes or not
-    figsize: (optional) the size of the image
+    figsize: (optional) the size of the imagepSp7zYRYjHE.mp4
     colors: (optional) An array or colors to use with each object
     captions: (optional) A list of strings to use as captions for each object
     """
@@ -161,7 +161,7 @@ selected_COCO_class_ids = [27,31,47,51,62,65,67,70,72,73,78,79,81,82,84,85,87,90
 
 
 print("\n======VALIDATION SET======")
-dataset_val = visiope_full.VisiopeDataset()
+dataset_val = visiope_full_ALCORLAB.VisiopeDataset()
 
 dataset_val.load_visiope(sampling="val")
 print("\nN tot_visiope images: %d" % len(dataset_val.b))
@@ -186,13 +186,13 @@ class_detected_distro = {name:0 for name in dataset_val.class_names}
 
 
 
-'''
+
 
 
 # VIDEO
 #-----------------------------------------------------------------------
-video_name = "puttingMakeUp1.mp4"
-detection_name = "puttingMakeUp1_80.pickle"
+video_name = "pSp7zYRYjHE.mp4"
+detection_name = "pSp7zYRYjHE_90.pickle"
 early_stop = 0
 
 
@@ -293,6 +293,7 @@ f.close()
 
 #pickle.dump(class_detected_distro, open('class_detected_distro_40.pickle', 'wb'))
 
+'''
 
 img = cv2.imread("./VIDEO/temp/image0.png")
 height,width,layers=img.shape
@@ -350,7 +351,7 @@ for i in range(img_range):
                             r['class_ids'], 
                             dataset_val.class_names, 
                             scores=r['scores'], 
-                            colors=colors, 
+                            colors=colors, visiope20180707T0933
                             show_bbox=True)
 
 
