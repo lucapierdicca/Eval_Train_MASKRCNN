@@ -207,7 +207,7 @@ PNG_IMAGES_PATH = "./pngImages_mod"
 BMP_IMAGES_PATH = "./bmpImages_mod"
 JSON_PATH       = "labelbox_mod.json"
 
-FINETUNED_MODEL_PATH = DEFAULT_LOGS_DIR+'/'+'mask_rcnn_visiope_0073.h5'
+FINETUNED_MODEL_PATH = DEFAULT_LOGS_DIR+'/visiope20180707T0933/'+'mask_rcnn_visiope_0073.h5'
 #FINETUNED_MODEL_PATH = 'mask_rcnn_coco.h5'
 
 
