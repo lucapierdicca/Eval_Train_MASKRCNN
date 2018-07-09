@@ -1,7 +1,7 @@
 import cv2
 import tensorflow as tf
 from mrcnn import model as modellib
-import visiope_full
+import visiope_full_ALCORLAB
 import pickle
 
 
@@ -52,7 +52,7 @@ def detection_to_video(model, show_bbox=False, early_stop=0, video_path=None, ch
 
 # CONFIG
 #--------------------------------------------------------------------
-config = visiope_full.VisiopeConfig()
+config = visiope_full_ALCORLAB.VisiopeConfig()
 
 # Override the training configurations with a few
 # changes for inferencing.
@@ -82,7 +82,7 @@ import argparse
 
 # Parse command line arguments
 parser = argparse.ArgumentParser(
-    description='Train Mask R-CNN on VISIOPE_FULL')
+    description='Train Mask R-CNN on visiope_full_ALCORLAB')
 parser.add_argument("--video", required=True,
                     metavar="<command>",
                     help="'train' or 'evaluate' on MS COCO")
