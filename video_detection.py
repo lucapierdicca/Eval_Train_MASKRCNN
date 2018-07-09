@@ -97,7 +97,7 @@ args = parser.parse_args()
 
 # LOAD CHKPT
 #----------------------------------------------------------------------------------
-weights_path = "./logs_VF/mask_rcnn_visiope_00"+args.model+".h5"
+weights_path = "./logs_VF/visiope20180707T0933/mask_rcnn_visiope_00"+args.model+".h5"
 print("Model weights path: ", weights_path)
 model.load_weights(weights_path, by_name=True)
 
