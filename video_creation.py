@@ -262,38 +262,36 @@ for i in range(img_range):
     r = detection[i]
 
 
-    #img = cv2.imread("./VIDEO/imgs"+video_name+"/"+"image"+str(i)+".png")
+    img = cv2.imread("./VIDEO/imgs"+video_name+"/"+"image"+str(i)+".png")
 
-    # display_instances(img, 
-    #                     r['rois'], 
-    #                     r['masks'], 
-    #                     r['class_ids'], 
-    #                     dataset_val.class_names, 
-    #                     scores=r['scores'], 
-    #                     colors=colors, 
-    #                     show_bbox=True)
+    display_instances(img, 
+                        r['rois'], 
+                        r['masks'], 
+                        r['class_ids'], 
+                        dataset_val.class_names, 
+                        scores=r['scores'], 
+                        colors=colors, 
+                        show_bbox=True)
 
-    for j in list(set(list(r['class_ids']))):
-        c[j-1] = j
-        a.append(c)
-        c=[0]*33
+    # for j in list(set(list(r['class_ids']))):
+    #     c[j-1] = j
+    #     a.append(c)
+    #     c=[0]*33
 
+# f = open('graph_video_data.txt', 'a')
+# for i in a:
+#     we = ",".join(str(j) for j in i)
+#     print(we)
+#     f.write(we+'\n')
 
+# f.close()
 
-f = open('graph_video_data.txt', 'a')
-for i in a:
-    we = ",".join(str(j) for j in i)
-    print(we)
-    f.write(we+'\n')
-
-f.close()
-
-    #plt.savefig("./VIDEO/temp/image"+str(i)+".png", bbox_inches='tight')
-    #plt.close()
+    plt.savefig("./VIDEO/temp/image"+str(i)+".png", bbox_inches='tight')
+    plt.close()
 
 #pickle.dump(class_detected_distro, open('class_detected_distro_40.pickle', 'wb'))
 
-'''
+
 
 img = cv2.imread("./VIDEO/temp/image0.png")
 height,width,layers=img.shape
@@ -318,7 +316,7 @@ print("Saved to ", file_name)
 
 
 
-
+'''
 
 # POSTPROCESSING
 #-------------------------------------
