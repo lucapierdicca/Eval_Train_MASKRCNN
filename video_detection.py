@@ -117,6 +117,8 @@ def video_to_detection(model, video_relative, video_folder, video_name, class_id
     # Video capture
     video_path = video_relative+'/'+video_folder+'/'+video_name
 
+    print(video_path)
+
     vcapture = cv2.VideoCapture(video_path)
     orig_fps = vcapture.get(cv2.CAP_PROP_FPS)
     orig_n_frames = int(vcapture.get(cv2.CAP_PROP_FRAME_COUNT))
