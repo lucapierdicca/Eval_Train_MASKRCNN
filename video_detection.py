@@ -146,7 +146,7 @@ def video_to_detection(model, video_relative, video_folder, video_name, class_id
 
     count=0
     curr_frame_index = start_frame
-    while success and (i<new_n_frames):
+    while success and (count<new_n_frames):
         print("frame: %d / %d" % (count, new_n_frames))
         # Read next image
         vcapture.set(1,curr_frame_index)
