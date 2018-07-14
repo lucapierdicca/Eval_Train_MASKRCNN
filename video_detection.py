@@ -214,8 +214,7 @@ def main():
     #--------------------------------------------------------------------------------
     video_relative = '../Train_Eval_ActivityRecoLSTM/PersonalCare_'
 
-    video_folders = os.listdir(video_relative)
-    video_folders = sorted([i for i in video_folders if i[0] == '_'])
+    video_folders = sorted(os.listdir(video_relative))
     classlbl_to_id = {classlbl:id_ for id_,classlbl in enumerate(video_folders)}
     
     dataset_video = []
