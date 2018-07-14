@@ -1,7 +1,7 @@
-#import cv2
-#import tensorflow as tf
-#from mrcnn import model as modellib
-#import visiope_full_ALCORLAB
+import cv2
+import tensorflow as tf
+from mrcnn import model as modellib
+import visiope_full_ALCORLAB
 import pickle
 import os
 
