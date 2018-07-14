@@ -166,7 +166,6 @@ def video_to_detection(model, video_relative, video_folder, video_name, class_id
             curr_frame_index+=stride
       
     video_info['final_nframes'] = len(video_info['frames_info'])
-    video.append(video_info)
 
     return video_info
 
@@ -227,8 +226,9 @@ def main():
                                             video_folder, 
                                             video_name, 
                                             classlbl_to_id[video_folder])
+            dataset_video.append(video_info)
 
-    pickle.dump(dataset_video, open('../Train_Eval_ActivityRecoLSTM/dataset_video.pickle','rb'))
+    pickle.dump(dataset_video, open('../Train_Eval_ActivityRecoLSTM/dataset_video.pickle','wb'))
 
 
 
