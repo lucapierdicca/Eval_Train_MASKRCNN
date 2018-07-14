@@ -1,4 +1,4 @@
-import cv2
+#import cv2
 #import tensorflow as tf
 #from mrcnn import model as modellib
 #import visiope_full_ALCORLAB
@@ -7,15 +7,15 @@ import os
 
 
 
-def dataset_stats():
+def video_dataset_stats():
     videos = []
     dataset_path = '../Train_Eval_ActivityRecoLSTM/Personal_Care'
-    class_folder_list = os.listdir(dataset_path)
-    class_folder_list = sorted([i for i in class_folder_list if i[0] == '_'])
+    video_folders = os.listdir(dataset_path)
+    video_folders = sorted([i for i in video_folders if i[0] == '_'])
 
-    classlbl_to_id = {classlbl:id_ for id_,classlbl in enumerate(class_folder_list)}
+    classlbl_to_id = {classlbl:id_ for id_,classlbl in enumerate(video_folders)}
 
-    for classlbl in class_folder_list:
+    for classlbl in video_folders:
         for video in os.listdir(dataset_path+'/'+classlbl):
             curr_id = classlbl_to_id[classlbl]
             
@@ -39,69 +39,97 @@ def dataset_stats():
             agg[i['class_id']].append((i['class_id'],i['fps'],i['n_frame']))
 
     return videos, agg
-        
-    
 
-
-def detection_to_video(model, show_bbox=False, early_stop=0, video_path=None, chkpt=0):
         
+def check_video_length(fps, n_frames):
 
     # Video capture
-    vcapture = cv2.VideoCapture(video_path)
-    width = int(vcapture.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(vcapture.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    fps = vcapture.get(cv2.CAP_PROP_FPS)
-    n_frames = int(vcapture.get(cv2.CAP_PROP_FRAME_COUNT))
+    fps = fps
+    n_frames = n_frames 
     print("Tot frames: %d" % n_frames)
 
     max_n_frames = 2500
     orig_n_frames = n_frames
+    orig_fps = fps
 
     start_frame, end_frame, stride = 0, orig_n_frames, 1
 
-    while (n_frames>max_n_frames) and (fps>=7):
+    while (n_frames>max_n_frames) and (fps>7):
         n_frames = n_frames//2
         fps = fps//2
 
+    stride = orig_n_frames//n_frames      
+
     if (n_frames>max_n_frames):
-        adv_n_frame = (max_n_frames-n_frames)//2
-        stride = origin_n_frames//n_frames
-        start_frame = stride*adv_n_frame
-        end_frame = orig_n_frames-(stride*adv_n_frame)
-    
-    stride = origin_n_frames//n_frames
+        adv_n_frames = (n_frames-max_n_frames)//2
+        start_frame = stride*adv_n_frames
+        end_frame = orig_n_frames-(stride*adv_n_frames)
+        n_frames = n_frames-adv_n_frames*2
+
+    print(n_frames)
+    print(fps)
+    print(start_frame, end_frame, stride)
+    print((float(start_frame)/orig_n_frames)*100)
+
+    return start_frame, end_frame, stride, n_frames, fps
 
 
-    video_path = video_path[:video_path.find('.')]
+def video_to_detection(model, video_relative, video_folder, video_name, class_id):
+        
+
+    # Video capture
+    video_path = video_relative+'/'+video_folder+'/'+video_name
+
+    vcapture = cv2.VideoCapture(video_name)
+    orig_fps = vcapture.get(cv2.CAP_PROP_FPS)
+    orig_n_frames = int(vcapture.get(cv2.CAP_PROP_FRAME_COUNT))
+
+    start_frame, end_frame, stride, new_n_frames, new_fps = check_video_length(orig_fps, orig_n_frames)
 
     
-    detection_list_name = video_path+'_'+chkpt+'.pickle'
-    
+    print("Orig frames: %d" % orig_n_frames)
+    print("Redux frames: %d" % new_n_frames)
+    print("Orig fps: %d" % orig_fps)
+    print("Redux fps: %d" % new_fps)
+
+
     count = 0
     success = True
-    detection_list = []
-    #early_stop = early_stop
 
+    video_info = {'video_name': video_name,
+                  'class_id': class_id,
+                  'original_nframes': orig_n_frames,
+                  'reduced_nframes': new_n_frames,
+                  'original_fps': orig_fps,
+                  'reduced_fps': new_fps,
+                  'frames_info':[]
+                  }
 
-    while success:
-        print("frame: %d / %d" % (count, n_frames))
+    count=0
+    curr_frame_index = start_frame
+    while success and (i<new_n_frames):
+        print("frame: %d / %d" % (count, new_n_frames))
         # Read next image
+        vcapture.set(1,curr_frame_index)
         success, image = vcapture.read()
         if success:
             # OpenCV returns images as BGR, convert to RGB
             image = image[..., ::-1]
             # Detect objects
             r = model.detect([image], verbose=0)[0]
-            print("ROIS: %d" % len(r['rois']))
-            detection_list.append(r)
+            
+            print("Objs: %d" % len(r['rois']))
 
+            if len(r['class_ids']) > 0:
+                video_info['frames_info'].append({'obj_class_ids':r['class_ids'],
+                                              'obj_rois':r['rois']})
             count += 1
+            curr_frame_index+=stride
+      
+    video_info['final_nframes'] = len(video_info[frames_info])
+    video.append(video_info)
 
-            if count == early_stop:
-                break
-          
-    pickle.dump(detection_list, open(detection_list_name, 'wb'))
-
+    return video_info
 
 def main():
 
@@ -155,19 +183,39 @@ def main():
     weights_path = "./logs_VF/visiope20180707T0933/mask_rcnn_visiope_00"+args.model+".h5"
     print("Model weights path: ", weights_path)
     model.load_weights(weights_path, by_name=True)
-    detection_to_video(model, show_bbox=False, early_stop=0, video_path=args.video, chkpt=args.model)
 
 
 
-def tst():
+
+
+    # VIDEO DETECTION
+    #--------------------------------------------------------------------------------
+    video_relative = '../Train_Eval_ActivityRecoLSTM/Personal_Care'
+
+    video_folders = os.listdir(video_relative)
+    video_folders = sorted([i for i in video_folders if i[0] == '_'])
+    classlbl_to_id = {classlbl:id_ for id_,classlbl in enumerate(video_folders)}
+    
+    dataset_video = []
+    for video_folder in os.listdir(video_relative):
+        for video_name in video_folder:
+            video_info = video_to_detection(model, 
+                                            video_relative, 
+                                            video_folder, 
+                                            video_name, 
+                                            classlbl_to_id['video_folder'])
+
+    pickle.dump(dataset_video, open('../Train_Eval_ActivityRecoLSTM/dataset_video.pickle','rb'))
+
+
+def tst(fps, n_frames):
         
-
     # Video capture
-    #vcapture = cv2.VideoCapture(video_path)
+    #vcapture = cv2.VideoCapture(video_name)
     #width = int(vcapture.get(cv2.CAP_PROP_FRAME_WIDTH))
     #height = int(vcapture.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    fps = 30
-    n_frames = 4000
+    fps = fps
+    n_frames = n_frames
     print("Tot frames: %d" % n_frames)
 
     # stride = fps
@@ -196,41 +244,17 @@ def tst():
 
     print((end_frame-start_frame)//stride)
     print(fps//stride)
+    print(start_frame, end_frame, stride)
     print((float(start_frame)/n_frames)*100)
 
-def test2():
 
-    # Video capture
-    fps = 30
-    n_frames = 4000 
-    print("Tot frames: %d" % n_frames)
 
-    max_n_frames = 2500
-    orig_n_frames = n_frames
 
-    start_frame, end_frame, stride = 0, orig_n_frames, 1
-
-    while (n_frames>max_n_frames) and (fps>=7):
-        n_frames = n_frames//2
-        fps = fps//2
-
-    if (n_frames>max_n_frames):
-        adv_n_frame = (max_n_frames-n_frames)//2
-        stride = orig_n_frames//n_frames
-        start_frame = stride*adv_n_frame
-        end_frame = orig_n_frames-(stride*adv_n_frame)
-    
-    stride = orig_n_frames//n_frames
-
-    print(n_frames)
-    print(fps)
-    print(start_frame, end_frame, stride)
 
 # VIDEO
 #---------------------------------------------------------------------
 
 
-tst()
-test2()
+
 
 
