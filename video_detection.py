@@ -225,7 +225,7 @@ def main():
                                             video_relative, 
                                             video_folder, 
                                             video_name, 
-                                            classlbl_to_id['video_folder'])
+                                            classlbl_to_id[video_folder])
 
     pickle.dump(dataset_video, open('../Train_Eval_ActivityRecoLSTM/dataset_video.pickle','rb'))
 
