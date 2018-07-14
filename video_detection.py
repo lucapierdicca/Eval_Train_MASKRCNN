@@ -9,7 +9,7 @@ import os
 
 def video_dataset_stats():
     videos = []
-    dataset_path = '../Train_Eval_ActivityRecoLSTM/Personal_Care'
+    dataset_path = '../Train_Eval_ActivityRecoLSTM/PersonalCare'
     video_folders = os.listdir(dataset_path)
     video_folders = sorted([i for i in video_folders if i[0] == '_'])
 
@@ -39,8 +39,7 @@ def video_dataset_stats():
             agg[i['class_id']].append((i['class_id'],i['fps'],i['n_frame']))
 
     return videos, agg
-
-        
+      
 def check_video_length(fps, n_frames):
 
     # Video capture
@@ -73,6 +72,44 @@ def check_video_length(fps, n_frames):
 
     return start_frame, end_frame, stride, n_frames, fps
 
+def tst(fps, n_frames):
+        
+    # Video capture
+    #vcapture = cv2.VideoCapture(video_name)
+    #width = int(vcapture.get(cv2.CAP_PROP_FRAME_WIDTH))
+    #height = int(vcapture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    fps = fps
+    n_frames = n_frames
+    print("Tot frames: %d" % n_frames)
+
+    # stride = fps
+    # while n_frames > 300:
+    #     stride = stride // 15
+    #     n_frames = n_frames/stride
+
+    if n_frames > 2500:
+        stride = fps//15
+
+    i=2
+    new_n_frames = n_frames
+    while (new_n_frames > 2500) and (i<=stride):
+        new_n_frames = n_frames // i
+        i+=1
+
+    stride = n_frames//new_n_frames
+
+    start_frame, end_frame = 0,n_frames
+    if (new_n_frames - 2500)>0:
+        frames_to_be_removed = new_n_frames - 2500
+        frames_to_be_removed = frames_to_be_removed // 2
+
+        start_frame = frames_to_be_removed*stride
+        end_frame = n_frames - frames_to_be_removed*stride
+
+    print((end_frame-start_frame)//stride)
+    print(fps//stride)
+    print(start_frame, end_frame, stride)
+    print((float(start_frame)/n_frames)*100)
 
 def video_to_detection(model, video_relative, video_folder, video_name, class_id):
         
@@ -161,26 +198,11 @@ def main():
                                   config=config)
 
 
-    import argparse
-
-    # Parse command line arguments
-    parser = argparse.ArgumentParser(
-        description='Train Mask R-CNN on visiope_full_ALCORLAB')
-    parser.add_argument("--video", required=True,
-                        metavar="<command>",
-                        help="'train' or 'evaluate' on MS COCO")
-    parser.add_argument('--model', required=True,
-                        metavar="/path/to/weights.h5",
-                        help="Path to weights .h5 file or 'coco'")
-
-
-    args = parser.parse_args()
-
 
 
     # LOAD CHKPT
     #----------------------------------------------------------------------------------
-    weights_path = "./logs_VF/visiope20180707T0933/mask_rcnn_visiope_00"+args.model+".h5"
+    weights_path = "./logs_VF/visiope20180707T0933/mask_rcnn_visiope_0090.h5"
     print("Model weights path: ", weights_path)
     model.load_weights(weights_path, by_name=True)
 
@@ -190,7 +212,7 @@ def main():
 
     # VIDEO DETECTION
     #--------------------------------------------------------------------------------
-    video_relative = '../Train_Eval_ActivityRecoLSTM/Personal_Care'
+    video_relative = '../Train_Eval_ActivityRecoLSTM/PersonalCare_'
 
     video_folders = os.listdir(video_relative)
     video_folders = sorted([i for i in video_folders if i[0] == '_'])
@@ -208,51 +230,9 @@ def main():
     pickle.dump(dataset_video, open('../Train_Eval_ActivityRecoLSTM/dataset_video.pickle','rb'))
 
 
-def tst(fps, n_frames):
-        
-    # Video capture
-    #vcapture = cv2.VideoCapture(video_name)
-    #width = int(vcapture.get(cv2.CAP_PROP_FRAME_WIDTH))
-    #height = int(vcapture.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    fps = fps
-    n_frames = n_frames
-    print("Tot frames: %d" % n_frames)
-
-    # stride = fps
-    # while n_frames > 300:
-    #     stride = stride // 15
-    #     n_frames = n_frames/stride
-
-    if n_frames > 2500:
-        stride = fps//15
-
-    i=2
-    new_n_frames = n_frames
-    while (new_n_frames > 2500) and (i<=stride):
-        new_n_frames = n_frames // i
-        i+=1
-
-    stride = n_frames//new_n_frames
-
-    start_frame, end_frame = 0,n_frames
-    if (new_n_frames - 2500)>0:
-        frames_to_be_removed = new_n_frames - 2500
-        frames_to_be_removed = frames_to_be_removed // 2
-
-        start_frame = frames_to_be_removed*stride
-        end_frame = n_frames - frames_to_be_removed*stride
-
-    print((end_frame-start_frame)//stride)
-    print(fps//stride)
-    print(start_frame, end_frame, stride)
-    print((float(start_frame)/n_frames)*100)
 
 
-
-
-
-# VIDEO
-#---------------------------------------------------------------------
+main()
 
 
 
