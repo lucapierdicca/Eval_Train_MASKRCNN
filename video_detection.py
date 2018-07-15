@@ -213,7 +213,7 @@ def main():
 
     # VIDEO DETECTION
     #--------------------------------------------------------------------------------
-    video_relative = '../Train_Eval_ActivityRecoLSTM/PersonalCare_'
+    video_relative = '../Train_Eval_ActivityRecoLSTM/PersonalCare'
 
     video_folders = sorted(os.listdir(video_relative))
     classlbl_to_id = {classlbl:id_ for id_,classlbl in enumerate(video_folders)}
