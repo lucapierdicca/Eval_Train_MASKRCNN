@@ -9,7 +9,7 @@ import os
 
 def video_dataset_stats():
     videos = []
-    dataset_path = '../Train_Eval_ActivityRecoLSTM/PersonalCare'
+    dataset_path = '../Train_Eval_ActivityRecoLSTM/Personal_Care'
     video_folders = os.listdir(dataset_path)
     video_folders = sorted([i for i in video_folders if i[0] == '_'])
 
@@ -233,7 +233,8 @@ def main():
 
 
 
-main()
+a, b = video_dataset_stats()
+
 
 
 
