@@ -213,7 +213,7 @@ def main():
 
     # VIDEO DETECTION
     #--------------------------------------------------------------------------------
-    video_relative = '../Train_Eval_ActivityRecoLSTM/PersonalCare'
+    video_relative = '../Train_Eval_ActivityRecoLSTM/PersonalCare_'
 
     video_folders = sorted(os.listdir(video_relative))
     classlbl_to_id = {classlbl:id_ for id_,classlbl in enumerate(video_folders)}
@@ -226,9 +226,9 @@ def main():
                                             video_folder, 
                                             video_name, 
                                             classlbl_to_id[video_folder])
-            dataset_video.append(video_info)
 
-    pickle.dump(dataset_video, open('../Train_Eval_ActivityRecoLSTM/dataset_video.pickle','wb'))
+            video_name = video_name[:video_name.find(.)]
+            pickle.dump(video_info, open(video_relative+'/'+video_folder+'/'+video_name+'.pickle','wb'))
 
 
 
