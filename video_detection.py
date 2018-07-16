@@ -227,7 +227,7 @@ def main():
                                             video_name, 
                                             classlbl_to_id[video_folder])
 
-            video_name = video_name[:video_name.find(.)]
+            video_name = video_name[:video_name.find('.')]
             pickle.dump(video_info, open(video_relative+'/'+video_folder+'/'+video_name+'.pickle','wb'))
 
 
