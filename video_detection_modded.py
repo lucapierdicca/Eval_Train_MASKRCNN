@@ -153,7 +153,7 @@ def video_to_detection(model, video_relative, video_folder, video_name, class_id
         count += 1
         curr_frame_index+=stride
 
-    r = model.detect(frame_list[:50], verbose=1)
+    r = model.detect(frame_list[:25], verbose=1)
             
     for i in r:
         if len(i['class_ids']) > 0:
@@ -176,7 +176,7 @@ def main():
     class InferenceConfig(config.__class__):
         # Run detection on one image at a time
         GPU_COUNT = 1
-        IMAGES_PER_GPU = 50
+        IMAGES_PER_GPU = 25
         DETECTION_MIN_CONFIDENCE = 0.6
 
     config = InferenceConfig()
