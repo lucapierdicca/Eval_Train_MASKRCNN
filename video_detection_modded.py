@@ -153,7 +153,7 @@ def video_to_detection(model, video_relative, video_folder, video_name, class_id
         count += 1
         curr_frame_index+=stride
 
-    r = model.detect([frame_list], verbose=1)
+    r = model.detect(frame_list, verbose=1)
             
     for i in r:
         if len(i['class_ids']) > 0:
