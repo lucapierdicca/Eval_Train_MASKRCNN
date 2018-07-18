@@ -113,6 +113,8 @@ def tst(fps, n_frames):
 
 def video_to_detection(model, video_relative, video_folder, video_name, class_id):
         
+
+    # Video capture
     video_path = video_relative+'/'+video_folder+'/'+video_name
 
     print(video_path)
@@ -130,6 +132,9 @@ def video_to_detection(model, video_relative, video_folder, video_name, class_id
     print("Redux fps: %d" % new_fps)
 
 
+    count = 0
+    success = True
+
     video_info = {'video_name': video_name,
                   'class_id': class_id,
                   'original_nframes': orig_n_frames,
@@ -139,27 +144,26 @@ def video_to_detection(model, video_relative, video_folder, video_name, class_id
                   'frames_info':[]
                   }
 
-
-    frame_list = []
     count=0
     curr_frame_index = start_frame
-    success = True
     while success and (count<new_n_frames):
-        print("Frame: %d / %d" % (count, new_n_frames))
-        # Read next frame
+        print("frame: %d / %d" % (count, new_n_frames))
+        # Read next image
         vcapture.set(1,curr_frame_index)
         success, image = vcapture.read()
-        frame_list.append(image[..., ::-1])
-        count += 1
-        curr_frame_index+=stride
-
-    r = model.detect(frame_list[:15], verbose=1)
+        if success:
+            # OpenCV returns images as BGR, convert to RGB
+            image = image[..., ::-1]
+            # Detect objects
+            r = model.detect([image], verbose=0)[0]
             
-    for i in r:
-        if len(i['class_ids']) > 0:
-            video_info['frames_info'].append({'obj_class_ids':i['class_ids'],
-                                              'obj_rois':i['rois']})
+            print("Objs: %d" % len(r['rois']))
 
+            if len(r['class_ids']) > 0:
+                video_info['frames_info'].append({'obj_class_ids':r['class_ids'],
+                                              'obj_rois':r['rois']})
+            count += 1
+            curr_frame_index+=stride
       
     video_info['final_nframes'] = len(video_info['frames_info'])
 
@@ -176,7 +180,7 @@ def main():
     class InferenceConfig(config.__class__):
         # Run detection on one image at a time
         GPU_COUNT = 1
-        IMAGES_PER_GPU = 15
+        IMAGES_PER_GPU = 1
         DETECTION_MIN_CONFIDENCE = 0.6
 
     config = InferenceConfig()
@@ -204,7 +208,7 @@ def main():
     model.load_weights(weights_path, by_name=True)
 
 
-
+    from google.colab import files
 
     # VIDEO DETECTION
     #--------------------------------------------------------------------------------
@@ -225,6 +229,7 @@ def main():
 
                 video_name = video_name[:video_name.find('.')]
                 pickle.dump(video_info, open(video_relative+'/'+video_folder+'/'+video_name+'.pickle','wb'))
+                files.download(video_relative+'/'+video_folder+'/'+video_name+'.pickle')
                 print(video_name+' dumped')
 
 
