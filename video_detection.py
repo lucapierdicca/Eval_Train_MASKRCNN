@@ -6,40 +6,7 @@ import pickle
 import os
 
 
-
-def video_dataset_stats():
-    videos = []
-    dataset_path = '../Train_Eval_ActivityRecoLSTM/Personal_Care'
-    video_folders = os.listdir(dataset_path)
-    video_folders = sorted([i for i in video_folders if i[0] == '_'])
-
-    classlbl_to_id = {classlbl:id_ for id_,classlbl in enumerate(video_folders)}
-
-    for classlbl in video_folders:
-        for video in os.listdir(dataset_path+'/'+classlbl):
-            curr_id = classlbl_to_id[classlbl]
-            
-            vcapture = cv2.VideoCapture(dataset_path+'/'+classlbl+'/'+video)
-            n_frame = int(vcapture.get(cv2.CAP_PROP_FRAME_COUNT))
-            width = int(vcapture.get(cv2.CAP_PROP_FRAME_WIDTH))
-            height = int(vcapture.get(cv2.CAP_PROP_FRAME_HEIGHT))
-            fps = vcapture.get(cv2.CAP_PROP_FPS)
-            
-            videos.append({'class_id':curr_id,
-                            'n_frame':n_frame,
-                            'size':str(width)+'x'+str(height),
-                            'fps':fps})    
-
-    agg = {}
-
-    for i in videos:
-        if i['class_id'] not in agg:
-            agg[i['class_id']]=[(i['class_id'],i['fps'],i['n_frame'])]
-        else:
-            agg[i['class_id']].append((i['class_id'],i['fps'],i['n_frame']))
-
-    return videos, agg
-      
+   
 def check_video_length(fps, n_frames):
 
     # Video capture
