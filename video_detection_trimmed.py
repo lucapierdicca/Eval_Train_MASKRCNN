@@ -6,6 +6,7 @@ import pickle
 import os
 import json
 from scipy import sparse
+import numpy as np
 
 def encode_mask(mask):
         
