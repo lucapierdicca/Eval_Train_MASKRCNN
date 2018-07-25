@@ -168,6 +168,12 @@ def main():
 
 
 
+    from pydrive.auth import GoogleAuth
+    from pydrive.drive import GoogleDrive
+    drive = pickle.load(open('auth.pickle','rb'))
+    file = drive.CreateFile()
+
+
     # VIDEO DETECTION
     #--------------------------------------------------------------------------------
     video_relative = r'../Train_Eval_ActivityRecoLSTM/PersonalCare'
@@ -192,7 +198,10 @@ def main():
 
 
                 video_name = video_name[:video_name.find('.')]
+
                 pickle.dump(video_info, open(video_relative+'/'+video_folder+'/'+video_name+'_trimmed.pickle','wb'))
+                file.SetContentFile(video_relative+'/'+video_folder+'/'+video_name+'_trimmed.pickle')
+                file.Upload() 
                 print(video_name+' dumped')
 
 
