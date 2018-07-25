@@ -5,6 +5,7 @@ import visiope_full_ALCORLAB
 import pickle
 import os
 import json
+from scipy import sparse
 
 
 
@@ -47,8 +48,6 @@ def video_to_detection(model, video_relative, video_folder, video_name, class_id
     segments = {}
     for i in dataset_segments:
         print("segment: %d / %d" % (i,len(dataset_segments)))
-        count = 0
-        success = True
         
         n_frames = dataset_segments[i]['segment_n_frame']
         start_frame = dataset_segments[i]['segment_start_frame']
@@ -58,6 +57,7 @@ def video_to_detection(model, video_relative, video_folder, video_name, class_id
                       'frames_info':[]
                      }
     
+        success = True
         count=0
         curr_frame_index = start_frame
         while success and (count<n_frames):
@@ -77,7 +77,7 @@ def video_to_detection(model, video_relative, video_folder, video_name, class_id
                 if len(r['class_ids']) > 0:
                     segments[i]['frames_info'].append({'obj_class_ids':r['class_ids'],
                                                        'obj_rois':r['rois'],
-                                                       'obj_masks':r['masks']})
+                                                       'obj_masks':sparse.csrmatrix(r['masks'])})
                 count += 1
                 curr_frame_index+=1
     
@@ -148,7 +148,8 @@ def main():
 
     temp = [i for i in os.listdir(video_relative) if 'pickle' != i]
     for video_folder in temp:
-        for video_name in os.listdir(video_relative+'/'+video_folder):
+        temp_b = [i for i in os.listdir(video_relative+'/'+video_folder) if 'pickle' not in i]
+        for video_name in temp_b:
             if os.path.isfile(video_relative+'/'+video_folder+'/'+video_name[:video_name.find('.')]+'_trimmed.pickle') == False:
                 video_info = video_to_detection(model,
                                                 video_relative, 
