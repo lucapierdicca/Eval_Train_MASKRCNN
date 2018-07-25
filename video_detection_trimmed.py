@@ -7,6 +7,37 @@ import os
 import json
 from scipy import sparse
 
+def encode_mask(mask):
+        
+    #ENCODING
+    encoded_list= [mask.shape]
+    flag = True
+    
+    for k in np.arange(mask.shape[2]):
+        for j in np.arange(mask.shape[1]):
+            for i in np.arange(mask.shape[0]):
+                if mask[i,j,k] and flag:
+                    flag = False
+                    encoded_list.append([i,j,k,1])
+                else:
+                    if mask[i,j,k]:
+                        encoded_list[len(encoded_list)-1][3]+=1
+                    else:
+                        flag = True
+                    
+    return encoded_list
+    
+def decode_mask(encoded_list):
+    
+    #DECODING    
+    decoded_mask = np.zeros(encoded_list[0], dtype=bool)
+    encoded_list.pop(0)
+    
+    for element in encoded_list:
+        for i in np.arange(element[3]):
+            decoded_mask[element[0]+i,element[1],element[2]]=True
+    
+    return decoded_mask
 
 
 def video_to_detection(model, video_relative, video_folder, video_name, class_id, annotations):
@@ -47,7 +78,6 @@ def video_to_detection(model, video_relative, video_folder, video_name, class_id
     
     segments = {}
     for i in dataset_segments:
-        print("segment: %d / %d" % (i,len(dataset_segments)))
         
         n_frames = dataset_segments[i]['segment_n_frame']
         start_frame = dataset_segments[i]['segment_start_frame']
@@ -62,7 +92,7 @@ def video_to_detection(model, video_relative, video_folder, video_name, class_id
         curr_frame_index = start_frame
         while success and (count<n_frames):
             print("frame: %d / %d" % (count, n_frames))
-            print()
+            print("segment: %d / %d" % (i,len(dataset_segments)))
             # Read next image
             vcapture.set(1,curr_frame_index)
             success, image = vcapture.read()
@@ -75,9 +105,10 @@ def video_to_detection(model, video_relative, video_folder, video_name, class_id
                 print("objs: %d" % len(r['rois']))
     
                 if len(r['class_ids']) > 0:
+                    encoded_list=encode_mask(r['masks'])
                     segments[i]['frames_info'].append({'obj_class_ids':r['class_ids'],
                                                        'obj_rois':r['rois'],
-                                                       'obj_masks':[sparse.csr_matrix(r['masks'][:,:,i]) for i in range(r['masks'].shape[2])]})
+                                                       'obj_masks':encoded_list})
                 count += 1
                 curr_frame_index+=1
     
