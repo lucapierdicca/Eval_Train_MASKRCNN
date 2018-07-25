@@ -18,6 +18,7 @@ def video_to_detection(model, video_relative, video_folder, video_name, class_id
     
     #get segments from video
     curr_ann = annotations['database'][video_name[:video_name.find('.')]]['annotations']
+    print(curr_ann)
     
     dataset_segments = {}
     counter = 0
@@ -140,7 +141,9 @@ def main():
     annotations = json.load(open(r'../Train_Eval_ActivityRecoLSTM/activity_net.v1-3.min.json','r'))
 
     for video_folder in video_relative:
+        print(video_folder)
         for video_name in os.listdir(video_relative+'/'+video_folder):
+            print(video_name)
             if os.path.isfile(video_relative+'/'+video_folder+'/'+video_name[:video_name.find('.')]+'.pickle') == False:
                 video_info = video_to_detection(model,
                                                 video_relative, 
