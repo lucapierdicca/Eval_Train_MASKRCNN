@@ -77,7 +77,7 @@ def video_to_detection(model, video_relative, video_folder, video_name, class_id
                 if len(r['class_ids']) > 0:
                     segments[i]['frames_info'].append({'obj_class_ids':r['class_ids'],
                                                        'obj_rois':r['rois'],
-                                                       'obj_masks':sparse.csr_matrix(r['masks'])})
+                                                       'obj_masks':[sparse.csr_matrix(r['masks'][:,:,i]) for i in range(r['masks'].shape[2])]})
                 count += 1
                 curr_frame_index+=1
     
