@@ -14,15 +14,15 @@ def video_to_detection(model, video_relative, video_folder, video_name, class_id
     video_path = video_relative+'/'+video_folder+'/'+video_name
     vcapture = cv2.VideoCapture(video_path)
     fps = vcapture.get(cv2.CAP_PROP_FPS)
-    n_frames = int(vcapture.get(cv2.CAP_PROP_FRAME_COUNT))
+    orig_n_frames = int(vcapture.get(cv2.CAP_PROP_FRAME_COUNT))
     
     #get segments from video
     curr_ann = annotations['database'][video_name[:video_name.find('.')]]['annotations']
-    print(curr_ann)
     
     dataset_segments = {}
     counter = 0
     
+    n_tot_segment_frame=0
     for j in curr_ann:
         segment_time = int(j['segment'][1] - j['segment'][0])	
         
@@ -31,20 +31,18 @@ def video_to_detection(model, video_relative, video_folder, video_name, class_id
         dataset_segments[counter] = {}
         dataset_segments[counter]['segment_start_frame'] = segment_start_frame
         dataset_segments[counter]['segment_n_frame'] = segment_frame
+        n_tot_segment_frame = n_tot_segment_frame+segment_frame
         counter+=1
     
-    #start_frame, end_frame, stride, new_n_frames, new_fps = check_video_length(orig_fps, orig_n_frames)
     
     print(video_path)
-    print("number of segments of this video: %d" % len(dataset_segments))
+    print("n video frame: %d" % orig_n_frames)
     print("fps: %d" % fps)
+    print("n segment: %d" % len(dataset_segments))
+    print("n tot segment frame: %d" % n_tot_segment_frame)
+    
 
-    video_info = {
-                   'video_name': video_name,
-                   'class_id': class_id,
-                   'fps': fps,
-                   'n_segments': len(dataset_segments),
-                 }
+
     
     segments = {}
     for i in dataset_segments:
@@ -74,7 +72,7 @@ def video_to_detection(model, video_relative, video_folder, video_name, class_id
                 # Detect objects
                 r = model.detect([image], verbose=0)[0]
                 
-                print("Objs: %d" % len(r['rois']))
+                print("objs: %d" % len(r['rois']))
     
                 if len(r['class_ids']) > 0:
                     segments[i]['frames_info'].append({'obj_class_ids':r['class_ids'],
@@ -82,9 +80,17 @@ def video_to_detection(model, video_relative, video_folder, video_name, class_id
                                                        'obj_masks':r['masks']})
                 count += 1
                 curr_frame_index+=1
-                
-        
-    video_info['segments'] =segments
+    
+
+
+    video_info = {'video_name': video_name,
+                  'class_id': video_folder,
+                  'fps': fps,
+                  'original_nframes':orig_n_frames, 
+                  'segments_nframes':n_tot_segment_frame,
+                  'n_segments': len(dataset_segments)}               
+    
+    video_info['segments'] = segments
 
     return video_info
 
