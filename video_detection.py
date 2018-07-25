@@ -130,7 +130,7 @@ def video_to_detection(model, video_relative, video_folder, video_name, class_id
                 video_info['frames_info'].append({'obj_class_ids':r['class_ids'],
                                               'obj_rois':r['rois']})
             count += 1
-            curr_frame_index+=stride
+            curr_frame_index+=stridels
       
     video_info['final_nframes'] = len(video_info['frames_info'])
 
@@ -197,6 +197,8 @@ def main():
                 video_name = video_name[:video_name.find('.')]
                 pickle.dump(video_info, open(video_relative+'/'+video_folder+'/'+video_name+'.pickle','wb'))
                 print(video_name+' dumped')
+
+                
 
 
 
