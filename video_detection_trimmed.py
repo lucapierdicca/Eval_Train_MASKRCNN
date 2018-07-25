@@ -142,7 +142,9 @@ def main():
 
     temp = [i for i in os.listdir(video_relative) if 'pickle' != i]
     for video_folder in temp:
+        print(video_folder)
         for video_name in os.listdir(video_relative+'/'+video_folder):
+            print(video_name)
             if os.path.isfile(video_relative+'/'+video_folder+'/'+video_name[:video_name.find('.')]+'.pickle') == False:
                 video_info = video_to_detection(model,
                                                 video_relative, 
