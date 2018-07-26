@@ -190,8 +190,10 @@ def main():
     temp = [i for i in os.listdir(video_relative) if 'pickle' != i]
     for video_folder in temp:
         txt_title = [i for i in os.listdir(video_relative+'/'+video_folder) if i[0]=='_'][0]
+        print(txt_title)
         with open(video_relative+'/'+video_folder+'/'+txt_title, 'r') as txt:
             video_in_txt = txt.readlines()
+            print(video_in_txt)
         for video_name in video_in_txt:
             video_info = video_to_detection(model,
                                             video_relative, 
