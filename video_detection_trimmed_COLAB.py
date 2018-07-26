@@ -171,8 +171,10 @@ def main():
     from pydrive.auth import GoogleAuth
     from pydrive.drive import GoogleDrive
     drive = pickle.load(open('auth.pickle','rb'))
-    tgt_folder_id = '1apTnIAoFV_4f2VG8id9OaY7-Jalxmuty'
+    tgt_folder_id_trimmedpickle = '1apTnIAoFV_4f2VG8id9OaY7-Jalxmuty'
     tgt_folder_id_txt = '1wErTHdRuaRLR2Znd4_ayvmsdpE-DRJt0'
+    
+
     
 
 
@@ -191,9 +193,16 @@ def main():
     for video_folder in temp:
         txt_title = [i for i in os.listdir(video_relative+'/'+video_folder) if i[0]=='_'][0]
         print(txt_title)
+        file_list = drive.ListFile({'q': "'1wErTHdRuaRLR2Znd4_ayvmsdpE-DRJt0' in parents and trashed=false"}).GetList()
+        
+        for file in file_list:
+            if file['title'] == txt_title:
+                txt_id = file['id']
+        
         with open(video_relative+'/'+video_folder+'/'+txt_title, 'r') as txt:
             video_in_txt = txt.readlines()
             print(video_in_txt)
+        
         for video_name in video_in_txt:
             video_info = video_to_detection(model,
                                             video_relative, 
@@ -207,7 +216,7 @@ def main():
 
             pickle.dump(video_info, open(video_relative+'/'+video_folder+'/'+video_name+'_trimmed.pickle','wb'))
             file = drive.CreateFile({'title':video_name+'_trimmed.pickle',
-                                     'parents':[{"kind": "drive#fileLink","id": tgt_folder_id}]})
+                                     'parents':[{"kind": "drive#fileLink","id": tgt_folder_id_trimmedpickle}]})
             file.SetContentFile(video_relative+'/'+video_folder+'/'+video_name+'_trimmed.pickle')
             file.Upload() 
             
@@ -218,7 +227,7 @@ def main():
                     txt.write(i+'\n')
 
 
-            file_txt = drive.CreateFile({'title':txt_title,
+            file_txt = drive.CreateFile({'title':txt_title, 'id':txt_id,
                                          'parents':[{"kind": "drive#fileLink","id": tgt_folder_id_txt}]}) 
             file_txt.SetContentFile(txt_title)
             file_txt.Upload() 
