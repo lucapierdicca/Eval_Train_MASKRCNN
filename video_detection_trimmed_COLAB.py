@@ -198,7 +198,7 @@ def main():
             video_info = video_to_detection(model,
                                             video_relative, 
                                             video_folder, 
-                                            video_name, 
+                                            video_name[:video_name.find("\\")], 
                                             video_folder,
                                             annotations)
 
