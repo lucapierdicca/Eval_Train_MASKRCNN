@@ -201,27 +201,27 @@ def main():
                                             annotations)
 
 
-                video_name = video_name[:video_name.find('.')]
+            video_name = video_name[:video_name.find('.')]
 
-                pickle.dump(video_info, open(video_relative+'/'+video_folder+'/'+video_name+'_trimmed.pickle','wb'))
-                file = drive.CreateFile({'title':video_name+'_trimmed.pickle',
-                                         'parents':[{"kind": "drive#fileLink","id": tgt_folder_id}]})
-                file.SetContentFile(video_relative+'/'+video_folder+'/'+video_name+'_trimmed.pickle')
-                file.Upload() 
-                
-                video_in_txt = [i for i in video_in_txt if video_name not in i]
+            pickle.dump(video_info, open(video_relative+'/'+video_folder+'/'+video_name+'_trimmed.pickle','wb'))
+            file = drive.CreateFile({'title':video_name+'_trimmed.pickle',
+                                     'parents':[{"kind": "drive#fileLink","id": tgt_folder_id}]})
+            file.SetContentFile(video_relative+'/'+video_folder+'/'+video_name+'_trimmed.pickle')
+            file.Upload() 
+            
+            video_in_txt = [i for i in video_in_txt if video_name not in i]
 
-                with open(txt_title,'w') as txt:
-                    for i in video_in_txt:
-                        txt.write(i+'\n')
+            with open(txt_title,'w') as txt:
+                for i in video_in_txt:
+                    txt.write(i+'\n')
 
 
-                file_txt = drive.CreateFile({'title':txt_title,
-                                             'parents':[{"kind": "drive#fileLink","id": tgt_folder_id_txt}]}) 
-                file_txt.SetContentFile(txt_title)
-                file_txt.Upload() 
+            file_txt = drive.CreateFile({'title':txt_title,
+                                         'parents':[{"kind": "drive#fileLink","id": tgt_folder_id_txt}]}) 
+            file_txt.SetContentFile(txt_title)
+            file_txt.Upload() 
 
-                print(video_name+' dumped')
+            print(video_name+' dumped')
 
 
 
