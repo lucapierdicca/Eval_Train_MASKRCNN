@@ -191,6 +191,7 @@ def main():
 
     temp = [i for i in os.listdir(video_relative) if 'pickle' != i]
     for video_folder in temp:
+        
         txt_title = [i for i in os.listdir(video_relative+'/'+video_folder) if i[0]=='_'][0]
         print(txt_title)
         file_list = drive.ListFile({'q': "'1wErTHdRuaRLR2Znd4_ayvmsdpE-DRJt0' in parents and trashed=false"}).GetList()
@@ -201,13 +202,16 @@ def main():
         
         with open(video_relative+'/'+video_folder+'/'+txt_title, 'r') as txt:
             video_in_txt = txt.readlines()
+            video_in_txt = [i[:i.find("\\")] for i in video_in_txt]
+            
+            print(len(video_in_txt))
             print(video_in_txt)
         
         for video_name in video_in_txt:
             video_info = video_to_detection(model,
                                             video_relative, 
                                             video_folder, 
-                                            video_name[:video_name.find("\\")], 
+                                            video_name, 
                                             video_folder,
                                             annotations)
 
@@ -221,6 +225,8 @@ def main():
             file.Upload() 
             
             video_in_txt = [i for i in video_in_txt if video_name not in i]
+            print(len(video_in_txt))
+            print(video_in_txt)
 
             with open(txt_title,'w') as txt:
                 for i in video_in_txt:
@@ -235,11 +241,4 @@ def main():
             print(video_name+' dumped')
 
 
-
-
 main()
-
-
-
-
-
