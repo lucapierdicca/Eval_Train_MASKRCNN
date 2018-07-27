@@ -206,6 +206,9 @@ def main():
             
             print(len(video_in_txt))
             print(video_in_txt)
+
+            video_remained_in_txt = list(video_in_txt)
+
         
         for video_name in video_in_txt:
             video_info = video_to_detection(model,
@@ -223,13 +226,14 @@ def main():
                                      'parents':[{"kind": "drive#fileLink","id": tgt_folder_id_trimmedpickle}]})
             file.SetContentFile(video_relative+'/'+video_folder+'/'+video_name+'_trimmed.pickle')
             file.Upload() 
-            
-            video_in_txt = [i for i in video_in_txt if video_name not in i]
-            print(len(video_in_txt))
-            print(video_in_txt)
+
+
+            video_remained_in_txt = [i for i in video_remained_in_txt if video_name not in i]
+            print(len(video_remained_in_txt))
+            print(video_remained_in_txt)
 
             with open(txt_title,'w') as txt:
-                for i in video_in_txt:
+                for i in video_remained_in_txt:
                     txt.write(i+'\n')
 
 
