@@ -107,7 +107,8 @@ def video_to_detection(model, video_relative, video_folder, video_name, class_id
     
                 if len(r['class_ids']) > 0:
                     encoded_list=encode_mask(r['masks'])
-                    segments[i]['frames_info'].append({'obj_class_ids':r['class_ids'],
+                    segments[i]['frames_info'].append({'original_index':curr_frame_index,
+                                                       'obj_class_ids':r['class_ids'],
                                                        'obj_rois':r['rois'],
                                                        'obj_masks':encoded_list})
                 count += 1
