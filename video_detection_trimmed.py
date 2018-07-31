@@ -182,7 +182,7 @@ def main():
     temp = [i for i in os.listdir(video_relative) if 'pickle' != i and 'leg' in i]
     for video_folder in temp:
         temp_b = [i for i in os.listdir(video_relative+'/'+video_folder) if 'pickle' not in i]
-        temp_b = [(v_name, os.path.getsize(video_relative+'/'+video_folder+'/'+video_name)) for v_name in temp_b]
+        temp_b = [(v_name, os.path.getsize(video_relative+'/'+video_folder+'/'+v_name)) for v_name in temp_b]
         temp_b.sort(key=lambda x: x[1])
         temp_b = [i[0] for i in temp_b]
         for video_name in temp_b:
