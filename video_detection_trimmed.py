@@ -179,7 +179,7 @@ def main():
     #load the annotations
     annotations = json.load(open(r'../Train_Eval_ActivityRecoLSTM/activity_net.v1-3.min.json','r'))
 
-    temp = [i for i in os.listdir(video_relative) if 'pickle' != i and 'putting' in i]
+    temp = [i for i in os.listdir(video_relative) if 'pickle' != i and 'makeup' in i]
     for video_folder in temp:
         temp_b = [i for i in os.listdir(video_relative+'/'+video_folder) if 'pickle' not in i]
         temp_b = [(v_name, os.path.getsize(video_relative+'/'+video_folder+'/'+v_name)) for v_name in temp_b]
