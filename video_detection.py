@@ -130,7 +130,7 @@ def video_to_detection(model, video_relative, video_folder, video_name, class_id
                 video_info['frames_info'].append({'obj_class_ids':r['class_ids'],
                                               'obj_rois':r['rois']})
             count += 1
-            curr_frame_index+=stridels
+            curr_frame_index+=stride
       
     video_info['final_nframes'] = len(video_info['frames_info'])
 
